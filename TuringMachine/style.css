@@ -9,41 +9,72 @@ p::first-letter{
   font-size: 200%;
 }
 
-.el{
-  background: grey;
-  height: 90%;
-  width: 100px;
-  text-align: center;
-  /*vertical-align: middle;*/
-  font-size: 200%;
-  position: relative;
-  float: left;
-  border: 1px solid;
-  border-radius: 4px;
-  padding: 4px; 
-}
-
 .outer-div{
   background: rgb(97, 97, 97);
   border-radius: 30px;
-  text-align: center;
+  position: relative;
   height: 500px;
 }
 
 .inner-div{
   background: white;
-  display:inline-block;
   border-radius: 30px;
-  position: relative;
+  position: absolute;
+  top: 2.5%;
+  left: 2.5%;
   width: 95%;
-  height: 95%;  
+  height: 95%;
+}
+
+.innertop{
+  height: 40%;
+  width: 100%;
+  position: absolute;
 }
 
 
-.inner{
-  height: 33.3%;  
+.innermid{
+  top: 40%;
+  width: 100%;
+  height: 40%;
+  position: absolute;
 }
 
-.black{background: black  }
+.el{
+  top: 35%;
+  display: inline-block;
+  width: 80px;
+  text-align: center;
+  font-size: 400%;
+  border: 1px solid;
+  border-radius: 4px;
+  padding: 1px;
+}
 
-.white{background: grey	}
+.black{
+  background: black;
+  color:white;
+}
+
+.white{
+  background: white;
+  color:black;
+}
+
+.grey{
+  background: grey;
+  color:white;
+}
+
+.head{
+  top: 0%;
+  background: grey;
+  display: inline-block;
+  width: 10%;
+  height: 100%;
+  text-align: center;
+  font-size: 400%;
+  border: 1px solid;
+  border-radius: 4px;
+  padding: 1px;
+}

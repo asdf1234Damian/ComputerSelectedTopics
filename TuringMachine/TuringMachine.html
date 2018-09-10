@@ -11,25 +11,30 @@
     <p>This Turing machine doubles the ammont of '1's in the input</p>
     <div class="outer-div">
       <div class="inner-div">
-          <div class="top inner">
-          </div>
-          <div class="mid inner">
-              <div class="el white">1</div>
-              <div class="el black">1</div>
-              <div class="el white">1</div>
-              <div class="el black">1</div>
-              <div class="el white">1</div>
-              <div class="el white">1</div>
-          </div>
-          <div class="bot inner">
-              
-          </div>
+
+        <div class="innertop">
+          <!--
+          <div class="head">"Q"</div>
+        -->
+        </div>
+        <div class="innermid" id="mid">
+
+        </div>
       </div>
+    </div>text-align: center;
+    <div class="InputDiv">
+      <input type="text" id="inputtape" name="input" value="1010001010101011">
+      <br>
+
+      <button type="button" id="sendbtn"
+      onclick="addTape()">Send input</button>
+
+      <button type="button" id="turing" name="button" disabled="true" onclick="moveRight()">Begin</button>
+
+      <br>
+      <h1 id="result">[The resulting output will be displayed here]</h1>
     </div>
-    <input type="text" name="input" value="">
-    <br>
-    <button type="button" id="sendbtn" >Send input</button>
-    <br>
+
   </body>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/2.2.0/anime.js"></script>
   <script src="sketch.js"></script>
