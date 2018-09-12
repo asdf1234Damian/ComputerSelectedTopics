@@ -1,63 +1,107 @@
 var currentTape;
-var currentPos;
+var currentPos = 0;
+var currentState;
 var stack;
+var printing=false;
 var running=false;
-function displayTape(tape,start) {
+
+/*
+*/
+addTape();
+startMachine();
+
+function displayTape() {
+  console.log("Displaying("+currentTape.join("")+","+currentPos+")");
   document.getElementById("mid").innerHTML= "";
-  for (var i = start; i <start+9 && i<tape.length; i++) {
-    if (i==start) {
-      document.getElementById("mid").innerHTML+= "<div class=\"el grey\">"+tape[i]+"</div>";
+  for (var i = 0; i<currentTape.length; i++) {
+    if (i==currentPos) {
+      document.getElementById("mid").innerHTML+= "<div class=\"el grey\">"+currentTape[i]+"</div>";
     }else{
-      if (tape[i]=="1") {
-      document.getElementById("mid").innerHTML+= "<div class=\"el black\">"+tape[i]+"</div>";
+      if (currentTape[i]=="1") {
+        document.getElementById("mid").innerHTML+= "<div class=\"el black\">"+currentTape[i]+"</div>";
       }else{
-      document.getElementById("mid").innerHTML+= "<div class=\"el white\">"+tape[i]+"</div>";
+        document.getElementById("mid").innerHTML+= "<div class=\"el white\">"+currentTape[i]+"</div>";
       }
     }
   }
-  document.getElementById("result").innerHTML=tape;
+  document.getElementById("result").innerHTML=currentTape.join("");
 }
 
+
 function addTape() {
-  currentTape=document.getElementById('inputtape').value;
+  console.log("Moving input to tape");
+  currentTape=document.getElementById('inputtape').value.split("");
   currentPos=0;
-  displayTape(currentTape,currentPos);
+  displayTape();
   document.getElementById("turing").disabled=false;
   document.getElementById("inputtape").value="";
 }
 
-function moveRight(tape,start) {
-  anime({
-    targets: '.el',
-    translateX:{
-      value:'+=80',
-      duration:1500
-    }, complete (anim){
-      currentPos+=1;
-      displayTape(currentTape,currentPos);
-    }
-  });
-}
-
-function moveLeft(tape,start) {
+function moveRight() {
+  console.log("MovingRight");
   anime({
     targets: '.el',
     translateX:{
       value:'-=80',
       duration:1500
-    },
-    complete: function(anim){
-      currentPos-=1;
-      displayTape(currentTape,currentPos);
+    }, complete (anim){
+
     }
   });
+  currentPos =currentPos+ 1;
+  displayTape();
 }
 
-function automata(currentTape,currentPos) {
-  if(currentTape[currentPos]==0){
-    if (stack=) {
 
+function stopMachine() {
+  console.log("The Turing Machine stopped");
+  document.getElementById('inputtape').disabled=false;
+  document.getElementById('turing').disabled=false;
+  document.getElementById('sendbtn').disabled=false;
+  document.getElementById("result").innerHTML="The result is: "+currentTape.join("");
+}
+
+function automata(){
+  if (currentPos >=currentTape.length) {
+      for (var i = 0; i < stack.length; i++) {
+        currentTape.splice(currentPos,0,1);
+        stack.pop();
+      }
+      displayTape();
+      return stopMachine();
+  }
+  switch (currentState) {
+    case 0://Start
+    if (currentTape[currentPos]=='0') {
+      moveRight();
+      automata();
+    }else{
+      stack.push(1);
+      currentState=1;
+      console.log("stack:"+stack);
+      moveRight();
+      automata();
     }
+    break;
+
+    case 1:
+    if (currentTape[currentPos]=='0') {
+      for (var i = 0; i < stack.length; i++) {
+        currentTape.splice(currentPos,0,1);
+        stack.pop();
+        currentPos++;
+      }
+      stack=["z"]
+      currentState=0;
+      moveRight();
+      automata();
+    }else{
+      stack.push(1);
+      console.log("stack:"+stack);
+      moveRight();
+      automata();
+    }
+    break;
   }
 }
 
@@ -65,11 +109,7 @@ function startMachine() {
   document.getElementById('inputtape').disabled=true;
   document.getElementById('turing').disabled=true;
   document.getElementById('sendbtn').disabled=true;
-
-}
-
-function stopMachine() {
-  document.getElementById('inputtape').disabled=false;
-  document.getElementById('turing').disabled=false;
-  document.getElementById('sendbtn').disabled=false;
+  stack=["z"]
+  currentState=0;
+  automata();
 }
