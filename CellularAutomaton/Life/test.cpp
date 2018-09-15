@@ -7,7 +7,7 @@ Automata::Automata():m_window({size,size},"Game of life"),m_pixels(size*size){
   for (size_t x = 0; x < size; x++) {
     for (size_t y = 0; y < size; y++) {
       m_pixels[y*size + x].position={x,y};
-      setCell(x,y,rand()%250); 
+      setCell(x,y,rand()%250);
     }
   }
 }
