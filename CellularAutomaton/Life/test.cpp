@@ -14,6 +14,7 @@ cellsNext(size*size){
 
 void Automata::run(){
   randomStart();
+
   while (grid.isOpen()) {
     grid.clear();
     update();
