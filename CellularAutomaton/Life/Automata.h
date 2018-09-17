@@ -6,15 +6,13 @@ public:
   Automata(unsigned int,short int );
   sf::Color alive= sf::Color(170, 255,253);
   sf::Color dead= sf::Color(0,0,0);
-  int zoom=1;
+  int ls=2,us=3,lb=3,ub=3,zoom=1,viewx=0,viewy=0;
   bool running=false;
   void run();
   void randomStart();
   void update();
-  /*void loadFile();
-  void writeToFile();*/
+  void updateView();
 private:
-  int ls=2,us=3,lb=3,ub=3;
   sf::RenderWindow grid;
   sf::View view;
   std::vector<sf::Vertex> cells;

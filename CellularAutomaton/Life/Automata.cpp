@@ -4,10 +4,10 @@
 #include <random>
 
 Automata::Automata(unsigned int size, short int p):
-grid({400,400},"Game of life"),
+grid({size,size},"Game of life"),
 cells(size*size),
 cellsNext(size*size){
-  view.reset(sf::FloatRect(0, 0, size/zoom, size/zoom ));
+  view.reset(sf::FloatRect(viewx, viewy, size/zoom, size/zoom ));
   this->size=size;
   this->p=p;
   grid.setFramerateLimit(60);
@@ -24,15 +24,7 @@ void Automata::run(){
     pollEvent();
   }
 }
-/*
-void Automata::fromFile(){
 
-}
-
-void Automata::writeToFile(){
-
-}
-*/
 void Automata::randomStart(){
   for (size_t x = 0; x < size; x++){
     for (size_t y = 0; y < size; y++) {
@@ -56,23 +48,65 @@ void Automata::update(){
 }
 
 
+void Automata::updateView(){
+  view.reset(sf::FloatRect(viewx, viewy, size/zoom, size/zoom ));
+  grid.setView(view);
+}
+
+
 void Automata::pollEvent(){
   sf::Event e;
+
   while (grid.pollEvent(e)) {
+
     if (e.type== sf::Event::Closed) {
       grid.close();
-    }else if (e.key.code==sf::Keyboard::Right) {
-      update();
-    }else if (e.key.code==sf::Keyboard::Up) {
-      zoom++;
-      view.reset(sf::FloatRect(0, 0, size/zoom, size/zoom ));
-      grid.setView(view);
-    }else if (e.key.code==sf::Keyboard::Down) {
-      if (zoom>1) {
-        zoom--;
-        view.reset(sf::FloatRect(0, 0, size/zoom, size/zoom ));
-        grid.setView(view);
-      }
+    }
+
+    switch (e.key.code) {
+      case sf::Keyboard::Right:
+        update();
+      break;
+
+      case sf::Keyboard::Up:
+        zoom++;
+        updateView();
+      break;
+
+      case sf::Keyboard::Down:
+        if (zoom>1) {
+          zoom--;
+          updateView();
+        }
+      break;
+
+      case sf::Keyboard::A:
+        if(viewx>=0){
+          viewx--;
+          updateView();
+        }
+      break;
+
+      case sf::Keyboard::D:
+        if(viewx<=size){
+          viewx++;
+          updateView();
+        }
+      break;
+
+      case sf::Keyboard::W:
+        if(viewy<=size){
+          viewy++;
+          updateView();
+        }
+      break;
+
+      case sf::Keyboard::S:
+        if(viewy>=0){
+          viewy--;
+          updateView();
+        }
+      break;
     }
   }
 }
