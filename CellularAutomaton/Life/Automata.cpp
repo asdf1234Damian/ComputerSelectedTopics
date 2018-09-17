@@ -3,35 +3,44 @@
 #include <ctime>
 #include <random>
 
-Automata::Automata(unsigned int size):
-grid({size,size},"Game of life"),
+Automata::Automata(unsigned int size, short int p):
+grid({400,400},"Game of life"),
 cells(size*size),
 cellsNext(size*size){
+  view.reset(sf::FloatRect(0, 0, size/zoom, size/zoom ));
   this->size=size;
+  this->p=p;
   grid.setFramerateLimit(60);
+  grid.setView(view);
   update();
 }
 
 void Automata::run(){
   randomStart();
-
   while (grid.isOpen()) {
     grid.clear();
-    update();
     grid.draw(cells.data(),cells.size(),sf::Points);
     grid.display();
     pollEvent();
   }
 }
+/*
+void Automata::fromFile(){
 
+}
+
+void Automata::writeToFile(){
+
+}
+*/
 void Automata::randomStart(){
   for (size_t x = 0; x < size; x++){
     for (size_t y = 0; y < size; y++) {
       cells[y*size + x].position={(float)x,(float)y};
-      if (rand()%2==1) {
-        cells[y*size + x].color={250,250,250};
+      if (rand()%100<p) {
+        cells[y*size + x].color=alive;
       }else{
-        cells[y*size + x].color={0,0,0};
+        cells[y*size + x].color=dead;
       }
     }
   }
@@ -52,6 +61,18 @@ void Automata::pollEvent(){
   while (grid.pollEvent(e)) {
     if (e.type== sf::Event::Closed) {
       grid.close();
+    }else if (e.key.code==sf::Keyboard::Right) {
+      update();
+    }else if (e.key.code==sf::Keyboard::Up) {
+      zoom++;
+      view.reset(sf::FloatRect(0, 0, size/zoom, size/zoom ));
+      grid.setView(view);
+    }else if (e.key.code==sf::Keyboard::Down) {
+      if (zoom>1) {
+        zoom--;
+        view.reset(sf::FloatRect(0, 0, size/zoom, size/zoom ));
+        grid.setView(view);
+      }
     }
   }
 }
@@ -69,7 +90,7 @@ short int Automata::getValue(float x, float y){
   if (x<0) {x=size;}else if (x>size) {x=0;}
   if (y<0) {y=size;}else if (y>size) {x=0;}
 
-  if (cells[getIndex(x,y)].color==sf::Color(250,250,250)) {
+  if (cells[getIndex(x,y)].color==alive) {
     return 1;
   }else{
     return 0;
@@ -95,9 +116,9 @@ bool Automata::rule( float x, float y){
 
 void Automata::setCell(float x, float y){
   if (rule(x,y)) {
-    cells[y*size + x].color={250,250,250};//white
+    cells[y*size + x].color=alive;//white
   }else{
-    cells[y*size + x].color={0,0,0};//black
+    cells[y*size + x].color=dead;//black
   }
 }
 
@@ -106,10 +127,10 @@ int main(int argc, char const *argv[]) {
   std::cout << "Size of the grid" << '\n';
   unsigned int size;
   std::cin >> size;
-  Automata GOL(size);
+  std::cout << "Probability of starting as alive" << '\n';
+  short int p;
+  std::cin >> p;
+  Automata GOL(size,p);
   GOL.run();
-  if (GOL.running) {
-    std::cout << "Go cat" << '\n';
-  }
   return 0;
 }
