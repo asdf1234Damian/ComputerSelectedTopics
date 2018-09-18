@@ -17,6 +17,9 @@ cellsNext(size*size){
 
 void Automata::run(){
   randomStart();
+  /*
+  gliderStart();
+  */
   while (grid.isOpen()) {
     grid.clear();
     grid.draw(cells.data(),cells.size(),sf::Points);
@@ -24,6 +27,35 @@ void Automata::run(){
     pollEvent();
   }
 }
+
+
+void Automata::gliderStart(){
+
+  for (size_t x = 0; x < size; x++) {
+    for (size_t y = 0; y < size; y++) {
+      cells[y*size + x].color=dead;
+      if (y>=size/2 && y<size/2+5 ) {
+        if (x<size/2+5 && x>=size/2) {
+          if (x==size/2||x==size/2+4) {
+            cells[y*size + x].color=alive;
+          }
+          if ((y==size/2||y==size/2+4)&& x==size/2+2) {
+            cells[y*size + x].color=alive;
+          }
+
+          /*
+          if ((x>=size/2&&x<=size/2+2)&&y==size/2) {
+            cells[y*size + x].color=alive;
+          }
+          */
+        }
+      }
+
+
+    }
+  }
+}
+
 
 void Automata::randomStart(){
   for (size_t x = 0; x < size; x++){
@@ -36,15 +68,18 @@ void Automata::randomStart(){
       }
     }
   }
+
 }
 
 void Automata::update(){
   for (size_t x = 0; x < size; x++){
     for (size_t y = 0; y < size; y++) {
       cells[y*size + x].position={(float)x,(float)y};
+      cellsNext[y*size + x].position={(float)x,(float)y};
       setCell(x,y);
     }
   }
+  cells=cellsNext;
 }
 
 
@@ -56,58 +91,69 @@ void Automata::updateView(){
 
 void Automata::pollEvent(){
   sf::Event e;
-
+  if (running) {
+    update();
+  }
   while (grid.pollEvent(e)) {
-
     if (e.type== sf::Event::Closed) {
       grid.close();
-    }
-
-    switch (e.key.code) {
-      case sf::Keyboard::Right:
+    }else if(e.type==sf::Event::KeyPressed){
+      switch (e.key.code) {
+        case sf::Keyboard::Right:
         update();
-      break;
+        break;
 
-      case sf::Keyboard::Up:
+        case sf::Keyboard::Up:
         zoom++;
         updateView();
-      break;
+        break;
 
-      case sf::Keyboard::Down:
+        case sf::Keyboard::Down:
         if (zoom>1) {
           zoom--;
           updateView();
         }
-      break;
+        break;
 
-      case sf::Keyboard::A:
-        if(viewx>=0){
-          viewx--;
+        case sf::Keyboard::A:
+        if(viewx>10){
+          viewx-=10;
           updateView();
         }
-      break;
+        break;
 
-      case sf::Keyboard::D:
-        if(viewx<=size){
-          viewx++;
+        case sf::Keyboard::D:
+        if(viewx<=size-size/zoom){
+          viewx+=10;
           updateView();
         }
-      break;
+        break;
 
-      case sf::Keyboard::W:
-        if(viewy<=size){
-          viewy++;
+        case sf::Keyboard::S:
+        if(viewy<size-size/zoom){
+          viewy+=10;
           updateView();
         }
-      break;
+        break;
 
-      case sf::Keyboard::S:
-        if(viewy>=0){
-          viewy--;
+        case sf::Keyboard::W:
+        if(viewy>10){
+          viewy-=10;
           updateView();
         }
-      break;
+        break;
+
+        case sf::Keyboard::Left:
+        if (running) {
+          running=false;
+        }else{
+          running=true;
+        }
+        break;
+      }
+
     }
+    //std::cout << viewx<<":"<< viewy << '\n';
   }
 }
 
@@ -150,9 +196,9 @@ bool Automata::rule( float x, float y){
 
 void Automata::setCell(float x, float y){
   if (rule(x,y)) {
-    cells[y*size + x].color=alive;//white
+    cellsNext[y*size + x].color=alive;//white
   }else{
-    cells[y*size + x].color=dead;//black
+    cellsNext[y*size + x].color=dead;//black
   }
 }
 
