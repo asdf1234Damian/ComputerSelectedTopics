@@ -5,11 +5,6 @@ var stack;
 var printing=false;
 var running=false;
 
-/*
-*/
-addTape();
-startMachine();
-
 function displayTape() {
   console.log("Displaying("+currentTape.join("")+","+currentPos+")");
   document.getElementById("mid").innerHTML= "";
@@ -49,7 +44,7 @@ function moveRight() {
     }
   });
   currentPos =currentPos+ 1;
-  displayTape();
+  //displayTape();
 }
 
 
@@ -61,11 +56,12 @@ function stopMachine() {
   document.getElementById("result").innerHTML="The result is: "+currentTape.join("");
 }
 
-function automata(){
+function Turing(){
   if (currentPos >=currentTape.length) {
       for (var i = 0; i < stack.length; i++) {
         currentTape.splice(currentPos,0,1);
         stack.pop();
+        moveRight();
       }
       displayTape();
       return stopMachine();
@@ -74,13 +70,13 @@ function automata(){
     case 0://Start
     if (currentTape[currentPos]=='0') {
       moveRight();
-      automata();
+      Turing();
     }else{
       stack.push(1);
       currentState=1;
       console.log("stack:"+stack);
       moveRight();
-      automata();
+      Turing();
     }
     break;
 
@@ -94,12 +90,12 @@ function automata(){
       stack=["z"]
       currentState=0;
       moveRight();
-      automata();
+      Turing();
     }else{
       stack.push(1);
       console.log("stack:"+stack);
       moveRight();
-      automata();
+      Turing();
     }
     break;
   }
@@ -111,5 +107,5 @@ function startMachine() {
   document.getElementById('sendbtn').disabled=true;
   stack=["z"]
   currentState=0;
-  automata();
+  Turing();
 }
