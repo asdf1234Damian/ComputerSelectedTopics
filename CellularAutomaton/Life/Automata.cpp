@@ -181,7 +181,6 @@ short int Automata::getValue(float x, float y){
 
 short int Automata::neighSum(float x, float y){
   return(getValue(x-1,y+1)+getValue(x-1,y)+getValue(x-1,y-1)+getValue(x,y+1)+getValue(x,y-1)+getValue(x+1,y+1)+getValue(x+1,y)+getValue(x+1,y-1));
-
 }
 
 bool Automata::rule( float x, float y){
