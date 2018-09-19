@@ -150,6 +150,8 @@ void Automata::pollEvent(){
           running=true;
         }
         break;
+      default:
+          break;
       }
 
     }
