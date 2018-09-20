@@ -15,7 +15,7 @@ class Automata:
     def __init__(self):
         self.tk=Tk()
         self.tk.title("Automata")
-        self.tk.geometry("200x400")
+        self.tk.geometry("200x800")
         self.sizeLbl=Label(self.tk,text="Size of the grid")
         self.sizeLbl.pack(side=TOP, padx=10, pady=(200,5))
         self.sizeIn=Entry(self.tk,width=10,justify="center")
