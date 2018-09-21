@@ -2,7 +2,7 @@ from  tkinter  import *
 import threading
 import random as rng
 from subprocess import Popen
-
+# TODO: Prints iteration in every iteration (C++ code )
 class Automata:
     toggle=False#toggle between which array use
     running=False#toggle between running and stopped
@@ -31,9 +31,10 @@ class Automata:
 
         self.startBttn= Button(self.tk, text="Run",state="active", command=self.run)
         self.startBttn.pack(side=TOP, padx=10, pady=10)
-        """
-        self.stopBttn= Button(self.tk, text="Stop",state="active", command=self.run)
+
+        self.stopBttn= Button(self.tk, text="Stop",state="disabled", command=self.stop)
         self.stopBttn.pack(side=TOP, padx=10, pady=10)
+        """
 
         self.stepBttn=Button(self.tk, text="Step",state="active", command=self.run)
         self.stepBttn.pack(side=TOP, padx=10, pady=10)
@@ -45,10 +46,15 @@ class Automata:
 
     def run(self):
         automat=Popen(["./Automata",self.sizeIn.get(),self.probIn.get()])
+        self.stopBttn.config(state="normal")
         self.startBttn.config(state="disabled")
-        automat.wait()
-        self.startBttn.config(state="normal")
+        #automat.wait()
         #print(self.sizeIn.get())
+
+    def stop(self):
+        automat.terminate()
+        self.stopBttn.config(state="disabled")
+
 
 GUI = Automata()
 GUI.start()

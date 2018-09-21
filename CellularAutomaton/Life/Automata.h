@@ -16,14 +16,13 @@ public:
 private:
   sf::RenderWindow grid;
   sf::View view;
-  std::vector<sf::Vertex> cells;
-  std::vector<sf::Vertex> cellsNext;
+  bool state=true;//True sets current state to A,false to B
+  std::vector<sf::Vertex> cellsA;
+  std::vector<sf::Vertex> cellsB;
   void pollEvent();
   short int getValue(float, float);
   short int neighSum(float, float );
   bool rule(float, float);
   size_t getIndex(float , float );
   void setCell(float , float );
-
-  //void update();
 };

@@ -4,67 +4,58 @@
 #include <random>
 
 Automata::Automata(unsigned int size, short int p):
-grid({size,size},"Game of life"),
-cells(size*size),
-cellsNext(size*size){
+grid({800,800},"Game of life"),
+cellsA(size*size),
+cellsB(size*size){
   view.reset(sf::FloatRect(viewx, viewy, size/zoom, size/zoom ));
   this->size=size;
   this->p=p;
-  grid.setFramerateLimit(60);
+  grid.setFramerateLimit(30);
   grid.setView(view);
-  update();
+  randomStart();
 }
 
 void Automata::run(){
   randomStart();
-  /*
-  gliderStart();
-  */
   while (grid.isOpen()) {
     grid.clear();
-    grid.draw(cells.data(),cells.size(),sf::Points);
+    if (state) {
+      grid.draw(cellsA.data(),cellsA.size(),sf::Points);
+    }else{
+      grid.draw(cellsB.data(),cellsB.size(),sf::Points);
+    }
     grid.display();
     pollEvent();
   }
 }
 
-
 void Automata::gliderStart(){
-
   for (size_t x = 0; x < size; x++) {
     for (size_t y = 0; y < size; y++) {
-      cells[y*size + x].color=dead;
+      cellsA[y*size + x].color=dead;
       if (y>=size/2 && y<size/2+5 ) {
         if (x<size/2+5 && x>=size/2) {
           if (x==size/2||x==size/2+4) {
-            cells[y*size + x].color=alive;
+            cellsA[y*size + x].color=alive;
           }
           if ((y==size/2||y==size/2+4)&& x==size/2+2) {
-            cells[y*size + x].color=alive;
+            cellsA[y*size + x].color=alive;
           }
-
-          /*
-          if ((x>=size/2&&x<=size/2+2)&&y==size/2) {
-            cells[y*size + x].color=alive;
-          }
-          */
         }
       }
-
-
     }
   }
 }
 
-
 void Automata::randomStart(){
   for (size_t x = 0; x < size; x++){
     for (size_t y = 0; y < size; y++) {
-      cells[y*size + x].position={(float)x,(float)y};
+      cellsA[y*size + x].position={(float)x,(float)y};
+      cellsB[y*size + x].position={(float)x,(float)y};
       if (rand()%100<p) {
-        cells[y*size + x].color=alive;
+        cellsA[y*size + x].color=alive;
       }else{
-        cells[y*size + x].color=dead;
+        cellsA[y*size + x].color=dead;
       }
     }
   }
@@ -74,20 +65,16 @@ void Automata::randomStart(){
 void Automata::update(){
   for (size_t x = 0; x < size; x++){
     for (size_t y = 0; y < size; y++) {
-      cells[y*size + x].position={(float)x,(float)y};
-      cellsNext[y*size + x].position={(float)x,(float)y};
       setCell(x,y);
     }
   }
-  cells=cellsNext;
+  state=!state;
 }
-
 
 void Automata::updateView(){
   view.reset(sf::FloatRect(viewx, viewy, size/zoom, size/zoom ));
   grid.setView(view);
 }
-
 
 void Automata::pollEvent(){
   sf::Event e;
@@ -116,7 +103,7 @@ void Automata::pollEvent(){
         break;
 
         case sf::Keyboard::A:
-        if(viewx>10){
+        if(viewx>0){
           viewx-=10;
           updateView();
         }
@@ -137,18 +124,14 @@ void Automata::pollEvent(){
         break;
 
         case sf::Keyboard::W:
-        if(viewy>10){
+        if(viewy>0){
           viewy-=10;
           updateView();
         }
         break;
 
         case sf::Keyboard::Left:
-        if (running) {
-          running=false;
-        }else{
-          running=true;
-        }
+        running=!running;
         break;
       default:
           break;
@@ -159,24 +142,28 @@ void Automata::pollEvent(){
   }
 }
 
-///////////////////////////////////////////////////////////////////////////
-//                  This look more like a cell class
-///////////////////////////////////////////////////////////////////////////
 
 size_t Automata::getIndex(float x, float y){
   return (y*size + x);
 }
 
 short int Automata::getValue(float x, float y){
-
   if (x<0) {x=size;}else if (x>size) {x=0;}
   if (y<0) {y=size;}else if (y>size) {x=0;}
-
-  if (cells[getIndex(x,y)].color==alive) {
-    return 1;
+  if (state) {
+    if (cellsA[getIndex(x,y)].color==alive) {
+      return 1;
+    }else{
+      return 0;
+    }
   }else{
-    return 0;
+    if (cellsB[getIndex(x,y)].color==alive) {
+      return 1;
+    }else{
+      return 0;
+    }
   }
+
 }
 
 short int Automata::neighSum(float x, float y){
@@ -196,21 +183,26 @@ bool Automata::rule( float x, float y){
 }
 
 void Automata::setCell(float x, float y){
-  if (rule(x,y)) {
-    cellsNext[y*size + x].color=alive;//white
-  }else{
-    cellsNext[y*size + x].color=dead;//black
+  if (state) {
+    if (rule(x,y)) {
+      cellsB[y*size + x].color=alive;//white
+    }else{
+      cellsB[y*size + x].color=dead;//black
+    }
+  } else {
+    if (rule(x,y)) {
+      cellsA[y*size + x].color=alive;//white
+    }else{
+      cellsA[y*size + x].color=dead;//black
+    }
   }
 }
 
 
 int main(int argc, char const *argv[]) {
-  std::cout << "Size of the grid" << '\n';
-  unsigned int size;
-  std::cin >> size;
-  std::cout << "Probability of starting as alive" << '\n';
-  short int p;
-  std::cin >> p;
+  srand(time(NULL));
+  unsigned int size=strtoul(argv[1], NULL,10);
+  short int p=strtoul(argv[2], NULL,10);
   Automata GOL(size,p);
   GOL.run();
   return 0;
