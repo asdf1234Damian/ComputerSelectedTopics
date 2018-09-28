@@ -25,6 +25,7 @@ void Automata::run(){
       grid.draw(cellsB.data(),cellsB.size(),sf::Points);
     }
     grid.display();
+    running=true;
     pollEvent();
   }
 }
@@ -53,6 +54,7 @@ void Automata::randomStart(){
       cellsA[y*size + x].position={(float)x,(float)y};
       cellsB[y*size + x].position={(float)x,(float)y};
       if (rand()%100<p) {
+        total++;
         cellsA[y*size + x].color=alive;
       }else{
         cellsA[y*size + x].color=dead;
@@ -68,6 +70,7 @@ void Automata::update(){
       setCell(x,y);
     }
   }
+  gen++;
   state=!state;
 }
 
@@ -79,6 +82,7 @@ void Automata::updateView(){
 void Automata::pollEvent(){
   sf::Event e;
   if (running) {
+    std::cout <<gen<<", "<<total/gen<< '\n';
     update();
   }
   while (grid.pollEvent(e)) {
@@ -138,7 +142,6 @@ void Automata::pollEvent(){
       }
 
     }
-    //std::cout << viewx<<":"<< viewy << '\n';
   }
 }
 
@@ -185,12 +188,14 @@ bool Automata::rule( float x, float y){
 void Automata::setCell(float x, float y){
   if (state) {
     if (rule(x,y)) {
+      total++;
       cellsB[y*size + x].color=alive;//white
     }else{
       cellsB[y*size + x].color=dead;//black
     }
   } else {
     if (rule(x,y)) {
+      total++;
       cellsA[y*size + x].color=alive;//white
     }else{
       cellsA[y*size + x].color=dead;//black
