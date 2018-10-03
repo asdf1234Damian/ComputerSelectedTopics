@@ -2,7 +2,6 @@
 #include <iostream>
 #include <ctime>
 #include <fstream>
-//#include <>
 #include <random>
 
 Automata::Automata(unsigned int size, short int p,short int cr1,short int cr2,short int cg1,short int cg2,short int cb1,short int cb2):grid({1000,1000},"Game of life"),cellsA(size*size),cellsB(size*size){
