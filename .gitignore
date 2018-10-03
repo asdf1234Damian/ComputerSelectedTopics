@@ -1,3 +1,4 @@
 #ignore the generated text files
-Cellularautomaton/PythonAutomata/gens
-CellularAytomaton/Patterns/nextState
+CellularAutomaton/Patterns/gen
+CellularAutomaton/Patterns/nextState
+CellularAutomaton/PythonAutomata/gens
