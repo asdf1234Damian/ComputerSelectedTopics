@@ -17,10 +17,6 @@ Automata::Automata(unsigned int size, short int p,short int cr1,short int cr2,sh
 
 void Automata::run(){
   randomStart();
-  /*
-  gliderStart();
-  exploderStart();
-  */
   while (grid.isOpen()) {
     grid.clear();
     if (state) {
