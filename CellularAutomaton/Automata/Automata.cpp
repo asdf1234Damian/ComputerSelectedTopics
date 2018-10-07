@@ -4,12 +4,16 @@
 #include <fstream>
 #include <random>
 
-Automata::Automata(unsigned int size, short int p,short int cr1,short int cr2,short int cg1,short int cg2,short int cb1,short int cb2):grid({1000,1000},"Game of life"),cellsA(size*size),cellsB(size*size){
+Automata::Automata(unsigned int size, short int p,short int cr1,short int cr2,short int cg1,short int cg2,short int cb1,short int cb2,short int ls, short int us, short int lb, short int ub):grid({1000,1000},"Game of life"),cellsA(size*size),cellsB(size*size){
   view.reset(sf::FloatRect(viewx, viewy, size/zoom, size/zoom ));
   this->size=size;
   this->p=p;
   this-> alive= sf::Color(cr1,cg1,cb1);
   this-> dead= sf::Color(cr2,cg2,cb2);
+  this->ls=ls;
+  this->us=us;
+  this->lb=lb;
+  this->ub=ub;
   grid.setFramerateLimit(30);
   grid.setView(view);
   gliderStart();
@@ -184,11 +188,10 @@ short int Automata::getValue(float x, float y){
   }else{
     if (cellsB[getIndex(x,y)].color==alive) {
       return 1;
-      return 0;
     }else{
+      return 0;
     }
   }
-
 }
 
 short int Automata::neighSum(float x, float y){
@@ -205,6 +208,7 @@ bool Automata::rule( float x, float y){
   }else{
     return false;//Dies||StaysDead
   }
+
 }
 
 void Automata::setCell(float x, float y){
@@ -231,8 +235,8 @@ int main(int argc, char const *argv[]) {
   freopen("gens","w+",stdout);
   srand(time(NULL));
   unsigned int size=strtoul(argv[1], NULL,10);
-  short int p=strtoul(argv[2], NULL,10),cr1=strtoul(argv[3], NULL,10),cg1=strtoul(argv[4], NULL,10),cb1=strtoul(argv[5], NULL,10),cr2=strtoul(argv[6], NULL,10),cg2=strtoul(argv[7], NULL,10),cb2=strtoul(argv[8], NULL,10);
-  Automata GOL(size,p,cr1,cr2,cg1,cg2,cb1,cb2);
+  short int p=strtoul(argv[2], NULL,10),cr1=strtoul(argv[3], NULL,10),cg1=strtoul(argv[4], NULL,10),cb1=strtoul(argv[5], NULL,10),cr2=strtoul(argv[6], NULL,10),cg2=strtoul(argv[7], NULL,10),cb2=strtoul(argv[8], NULL,10),ls=strtoul(argv[9], NULL,10),us=strtoul(argv[10], NULL,10),lb=strtoul(argv[11], NULL,10),ub=strtoul(argv[12], NULL,10);
+  Automata GOL(size,p,cr1,cr2,cg1,cg2,cb1,cb2,ls,us,lb,ub);
   GOL.run();
   return 0;
 }

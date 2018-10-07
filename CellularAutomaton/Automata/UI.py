@@ -34,6 +34,14 @@ class UI:
         self.probType=OptionMenu(self.tk, self.pSel,*self.pTypes)
         self.probType.pack(side=TOP, padx=10, pady=10)
 
+        #Rule
+        self.ruleLbl=Label(self.tk,text="Rule")
+        self.ruleLbl.pack(side=TOP, padx=10, pady=(10,5))
+        self.ruleIn=Entry(self.tk,width=10,justify="center")
+        self.ruleIn.insert(END,"2,3,3,3")
+        self.ruleIn.pack(side=TOP, padx=10, pady=(10,5))
+
+
         #Start
         self.startBttn= Button(self.tk, text="Run",state="active", command=self.run)
         self.startBttn.pack(side=TOP, padx=10, pady=10)
@@ -54,7 +62,12 @@ class UI:
         self.tk.mainloop()
 
     def run(self):
-        automat=Popen(["./Automata",self.sizeIn.get(),self.probIn.get(),str(int(self.colora[0][0])),str(int(self.colora[0][1])),str(int(self.colora[0][2])),str(int(self.colorb[0][0])),str(int(self.colorb[0][1])), str(int(self.colorb[0][2]))])
+        rule=self.ruleIn.get().split(',')
+        ls=rule[0]
+        us=rule[1]
+        lb=rule[2]
+        ub=rule[3]
+        automat=Popen(["./Automata",self.sizeIn.get(),self.probIn.get(),str(int(self.colora[0][0])),str(int(self.colora[0][1])),str(int(self.colora[0][2])),str(int(self.colorb[0][0])),str(int(self.colorb[0][1])), str(int(self.colorb[0][2])),ls,us,lb,ub])
         automat.wait()
         self.plot()
 
