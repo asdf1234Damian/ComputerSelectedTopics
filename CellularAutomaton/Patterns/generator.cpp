@@ -2,7 +2,7 @@
 #include <string>
 #include <algorithm>
 
-int size;//Size of the array
+unsigned int size;//Size of the array
 short us,ls,ub,lb;//Parameter for the rule
 
 //Auxiliar function for getting the 2d position in the 1d
@@ -50,18 +50,18 @@ std::string nextState(std::string cPerm){
 
 //Main Program
 int main(int argc, char const *argv[]) {
-  //Redirects the stdout stream to a the nextState.tmp file
-  freopen("nextState.tmp","w+",stdout);
   //Get parameters form the terminal
-  size = std::stoi(argv[1]);
+  size = (unsigned int)std::stoi(argv[1]);
   ls = std::stoi(argv[2]);
   us = std::stoi(argv[3]);
   lb = std::stoi(argv[4]);
   ub = std::stoi(argv[5]);
+  //Redirects the stdout stream to a the nextState.tmp file
+  //freopen(name.c_str(),"w+",stdout);
 //Generates the array of size 'size*size' with 'i' 1s in it
-  for (size_t i = 0; i <= size*size; i++) {
+  for (size_t i = 0; i <=  size*size; i++) {
     std::string perm;
-    for (size_t j = 0; j < size*size-i; j++) {
+    for (size_t j = 0; j <  size*size-i; j++) {
       perm.append("0");
     }
     for (size_t k = 0; k <i; k++) {
