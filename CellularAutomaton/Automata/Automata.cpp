@@ -2,9 +2,13 @@
 #include <iostream>
 #include <ctime>
 #include <fstream>
+#include <chrono>
 #include <random>
 
-Automata::Automata(unsigned int size, short int p,short int cr1,short int cr2,short int cg1,short int cg2,short int cb1,short int cb2,short int ls, short int us, short int lb, short int ub):grid({1000,1000},"Game of life"),cellsA(size*size),cellsB(size*size){
+std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());
+std::normal_distribution<double> distribution(0.0,1.0);
+
+Automata::Automata(unsigned int size, double p,short int cr1,short int cr2,short int cg1,short int cg2,short int cb1,short int cb2,short int ls, short int us, short int lb, short int ub):grid({1000,1000},"Game of life"),cellsA(size*size),cellsB(size*size){
   view.reset(sf::FloatRect(viewx, viewy, size/zoom, size/zoom ));
   this->size=size;
   this->p=p;
@@ -23,7 +27,7 @@ void Automata::run(){
   randomStart();
   while (grid.isOpen()) {
     grid.clear();
-    if (state) {
+    if (state){
       grid.draw(cellsA.data(),cellsA.size(),sf::Points);
     }else{
       grid.draw(cellsB.data(),cellsB.size(),sf::Points);
@@ -75,7 +79,7 @@ void Automata::randomStart(){
     for (size_t y = 0; y < size; y++) {
       cellsA[y*size + x].position={(float)x,(float)y};
       cellsB[y*size + x].position={(float)x,(float)y};
-      if (rand()%100<p) {
+      if (distribution(generator)<p) {
         total++;
         cellsA[y*size + x].color=alive;
       }else{
@@ -162,10 +166,10 @@ void Automata::pollEvent(){
         case sf::Keyboard::Left:
         running = !running;
         break;
-      default:
-          break;
-      }
 
+        default:
+        break;
+      }
     }
   }
 }
@@ -199,16 +203,13 @@ short int Automata::neighSum(float x, float y){
 }
 
 bool Automata::rule( float x, float y){
-  if (getValue(x,y)==1) {//Is alive
-    if (neighSum(x,y)>=ls&&neighSum(x,y)<=us) {
+    if (getValue(x,y)==1&&neighSum(x,y)>=ls&&neighSum(x,y)<=us) {
       return true;//survives
     }
-  }else if (neighSum(x,y)>=lb&&neighSum(x,y)<=ub) {//Is Dead
-    return true;//born
-  }else{
-    return false;//Dies||StaysDead
-  }
-
+   if(getValue(x,y)==0&&neighSum(x,y)>=lb&&neighSum(x,y)<=ub){
+      return true;//born
+    }
+  return false;
 }
 
 void Automata::setCell(float x, float y){
@@ -233,9 +234,9 @@ void Automata::setCell(float x, float y){
 
 int main(int argc, char const *argv[]) {
   freopen("gens","w+",stdout);
-  srand(time(NULL));
   unsigned int size=strtoul(argv[1], NULL,10);
-  short int p=strtoul(argv[2], NULL,10),cr1=strtoul(argv[3], NULL,10),cg1=strtoul(argv[4], NULL,10),cb1=strtoul(argv[5], NULL,10),cr2=strtoul(argv[6], NULL,10),cg2=strtoul(argv[7], NULL,10),cb2=strtoul(argv[8], NULL,10),ls=strtoul(argv[9], NULL,10),us=strtoul(argv[10], NULL,10),lb=strtoul(argv[11], NULL,10),ub=strtoul(argv[12], NULL,10);
+  double p=strtod(argv[2], NULL);
+  short int cr1=strtoul(argv[3], NULL,10),cg1=strtoul(argv[4], NULL,10),cb1=strtoul(argv[5], NULL,10),cr2=strtoul(argv[6], NULL,10),cg2=strtoul(argv[7], NULL,10),cb2=strtoul(argv[8], NULL,10),ls=strtoul(argv[9], NULL,10),us=strtoul(argv[10], NULL,10),lb=strtoul(argv[11], NULL,10),ub=strtoul(argv[12], NULL,10);
   Automata GOL(size,p,cr1,cr2,cg1,cg2,cb1,cb2,ls,us,lb,ub);
   GOL.run();
   return 0;

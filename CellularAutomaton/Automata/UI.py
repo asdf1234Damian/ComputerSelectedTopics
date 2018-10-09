@@ -1,3 +1,4 @@
+import scipy.stats as st
 from  tkinter  import *
 import threading, os, errno, shlex
 from subprocess import Popen, PIPE
@@ -62,12 +63,13 @@ class UI:
         self.tk.mainloop()
 
     def run(self):
+        pNorm="{:.5f}".format(st.norm.ppf(float(self.probIn.get())/100))
         rule=self.ruleIn.get().split(',')
         ls=rule[0]
         us=rule[1]
         lb=rule[2]
         ub=rule[3]
-        automat=Popen(["./Automata",self.sizeIn.get(),self.probIn.get(),str(int(self.colora[0][0])),str(int(self.colora[0][1])),str(int(self.colora[0][2])),str(int(self.colorb[0][0])),str(int(self.colorb[0][1])), str(int(self.colorb[0][2])),ls,us,lb,ub])
+        automat=Popen(["./Automata",self.sizeIn.get(),pNorm,str(int(self.colora[0][0])),str(int(self.colora[0][1])),str(int(self.colora[0][2])),str(int(self.colorb[0][0])),str(int(self.colorb[0][1])), str(int(self.colorb[0][2])),ls,us,lb,ub])
         automat.wait()
         self.plot()
 
