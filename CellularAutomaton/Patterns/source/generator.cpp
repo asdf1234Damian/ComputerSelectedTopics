@@ -59,19 +59,29 @@ int main(int argc, char const *argv[]) {
   //Redirects the stdout stream to a the nextState.tmp file
   //freopen(name.c_str(),"w+",stdout);
 //Generates the array of size 'size*size' with 'i' 1s in it
+std::string perm;
+bool isFinal=true;
+std::cout << "Graph[{";
   for (size_t i = 0; i <=  size*size; i++) {
-    std::string perm;
+    perm="";
     for (size_t j = 0; j <  size*size-i; j++) {
       perm.append("0");
     }
     for (size_t k = 0; k <i; k++) {
       perm.append("1");
     }
-//Print all permutations of the current string
-//along with the next state
+    //Print all permutations of the current string
+    //along with the next state
     do{
-      std::cout << perm << ", " <<  nextState(perm) <<'\n';
-    }while (std::next_permutation(perm.begin(),perm.end()));
+      std::cout << perm << " \\[UndirectedEdge] " <<  nextState(perm);
+      isFinal=std::next_permutation(perm.begin(),perm.end());
+      if (isFinal){
+        std::cout << ", ";
+      }
+    }while (isFinal);
+    if (i!=size*size){
+      std::cout << ", ";
+    }
   }
-
+std::cout << "}, VertexStyle -> Red]" << '\n';
 }

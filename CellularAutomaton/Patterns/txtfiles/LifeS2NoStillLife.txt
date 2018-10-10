@@ -1,0 +1,1 @@
+Graph[{0001 \[UndirectedEdge] 0000, 0010 \[UndirectedEdge] 0000, 0100 \[UndirectedEdge] 0000, 1000 \[UndirectedEdge] 0000, 0110 \[UndirectedEdge] 0000, 1001 \[UndirectedEdge] 0000, 0111 \[UndirectedEdge] 0000, 1011 \[UndirectedEdge] 0000, 1101 \[UndirectedEdge] 0000, 1110 \[UndirectedEdge] 0000, 1111 \[UndirectedEdge] 0000}, VertexStyle -> Red]
