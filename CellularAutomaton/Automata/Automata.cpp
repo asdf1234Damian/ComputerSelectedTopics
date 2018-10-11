@@ -18,58 +18,7 @@ Automata::Automata(unsigned int size, double p,short int cr1,short int cr2,short
   grid.setView(view);
   //gliderStart();
 }
-
-void Automata::run(){
-  randomStart();
-  while (grid.isOpen()) {
-    grid.clear();
-    if (state){
-      grid.draw(cellsA.data(),cellsA.size(),sf::Points);
-    }else{
-      grid.draw(cellsB.data(),cellsB.size(),sf::Points);
-    }
-    grid.display();
-    //running=false;
-    pollEvent();
-  }
-}
-
-void Automata::randomStart(){
-  for (size_t x = 0; x < size; x++){
-    for (size_t y = 0; y < size; y++) {
-      cellsA[y*size + x].position={(float)x,(float)y};
-      cellsB[y*size + x].position={(float)x,(float)y};
-      if (distribution(generator)<p) {
-        total++;
-        cellsA[y*size + x].color=alive;
-      }else{
-        cellsA[y*size + x].color=dead;
-      }
-    }
-  }
-  std::cout <<gen<<", "<<total<< '\n';
-  total=0;
-
-}
-
-void Automata::update(){
-  for (size_t x = 0; x < size; x++){
-    for (size_t y = 0; y < size; y++) {
-      setCell(x,y);
-    }
-  }
-  gen++;
-  std::cout <<gen<<", "<<total<< '\n';
-  total=0;
-  state=!state;
-}
-
-void Automata::updateView(){
-  view.reset(sf::FloatRect(viewx, viewy, size/zoom, size/zoom ));
-  grid.setView(view);
-}
-
-
+//Cell Functions//////////////////////////////////////////////////
 void Automata::flipCell(int x, int y){
   x=(x*size) / (zoom*grid.getSize().x);
   y=(y*size) / (zoom*grid.getSize().y);
@@ -77,19 +26,15 @@ void Automata::flipCell(int x, int y){
     if (getValue(x,y)!=1) {
       total++;
       cellsA[y*size + x].color=alive;//white
-      std::cout << "changed: " << x <<','<<y<< " to white" <<std::endl;
     }else{
-      std::cout << "changed: " << x <<','<<y<< " to Black" <<std::endl;
       cellsA[y*size + x].color=dead;//black
     }
   } else {
     if (getValue(x,y)!=1) {
       total++;
       cellsB[y*size + x].color=alive;//white
-      std::cout << "changed: " << x <<','<<y<< " to white" <<std::endl;
     }else{
-      std::cout << "changed: " << x <<','<<y<< " to black" <<std::endl;
-      cellsB[y*size + x].color=dead;//black
+      cellsA[y*size + x].color=dead;//black
     }
   }
 
@@ -153,6 +98,58 @@ void Automata::setCell(float x, float y){
 }
 
 //Main Loop///////////////////////////////////////////////////////
+
+void Automata::run(){
+  randomStart();
+  while (grid.isOpen()) {
+    grid.clear();
+    if (state){
+      grid.draw(cellsA.data(),cellsA.size(),sf::Points);
+    }else{
+      grid.draw(cellsB.data(),cellsB.size(),sf::Points);
+    }
+    grid.display();
+    //running=false;
+    pollEvent();
+  }
+}
+
+void Automata::randomStart(){
+  for (size_t x = 0; x < size; x++){
+    for (size_t y = 0; y < size; y++) {
+      cellsA[y*size + x].position={(float)x,(float)y};
+      cellsB[y*size + x].position={(float)x,(float)y};
+      if (distribution(generator)<p) {
+        total++;
+        cellsA[y*size + x].color=alive;
+      }else{
+        cellsA[y*size + x].color=dead;
+      }
+    }
+  }
+  std::cout <<gen<<", "<<total<< '\n';
+  total=0;
+
+}
+
+void Automata::update(){
+  for (size_t x = 0; x < size; x++){
+    for (size_t y = 0; y < size; y++) {
+      setCell(x,y);
+    }
+  }
+  gen++;
+  std::cout <<gen<<", "<<total<< '\n';
+  total=0;
+  state=!state;
+}
+
+void Automata::updateView(){
+  view.reset(sf::FloatRect(viewx, viewy, size/zoom, size/zoom ));
+  grid.setView(view);
+}
+
+
 void Automata::pollEvent(){
   sf::Event e;
   if (running) {
@@ -225,7 +222,7 @@ void Automata::pollEvent(){
 //Main Program////////////////////////////////////////////////////
 
 int main(int argc, char const *argv[]) {
-  //freopen("gens","w+",stdout);
+  freopen("gens","w+",stdout);
   unsigned int size=strtoul(argv[1], NULL,10);
   double p=strtod(argv[2], NULL);
   short int cr1=strtoul(argv[3], NULL,10),cg1=strtoul(argv[4], NULL,10),cb1=strtoul(argv[5], NULL,10),cr2=strtoul(argv[6], NULL,10),cg2=strtoul(argv[7], NULL,10),cb2=strtoul(argv[8], NULL,10),ls=strtoul(argv[9], NULL,10),us=strtoul(argv[10], NULL,10),lb=strtoul(argv[11], NULL,10),ub=strtoul(argv[12], NULL,10);
