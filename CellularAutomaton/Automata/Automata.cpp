@@ -1,9 +1,5 @@
 #include "Automata.h"
-#include <iostream>
-#include <ctime>
-#include <fstream>
-#include <chrono>
-#include <random>
+//#include "Patterns.h"
 
 std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());
 std::normal_distribution<double> distribution(0.0,1.0);
@@ -20,7 +16,7 @@ Automata::Automata(unsigned int size, double p,short int cr1,short int cr2,short
   this->ub=ub;
   grid.setFramerateLimit(30);
   grid.setView(view);
-  gliderStart();
+  //gliderStart();
 }
 
 void Automata::run(){
@@ -35,42 +31,6 @@ void Automata::run(){
     grid.display();
     //running=false;
     pollEvent();
-  }
-}
-
-void Automata::gliderStart(){
-  for (size_t x = 0; x < size; x++) {
-    for (size_t y = 0; y < size; y++) {
-      cellsA[y*size + x].position={(float)x,(float)y};
-      cellsB[y*size + x].position={(float)x,(float)y};
-      cellsA[y*size + x].color=dead;
-    }
-  }
-
-  cellsA[20*size + 21].color=alive;
-  cellsA[21*size + 22].color=alive;
-  cellsA[22*size + 20].color=alive;
-  cellsA[22*size + 21].color=alive;
-  cellsA[22*size + 22].color=alive;
-}
-
-void Automata::exploderStart(){
-  for (size_t x = 0; x < size; x++) {
-    for (size_t y = 0; y < size; y++) {
-      cellsA[y*size + x].position={(float)x,(float)y};
-      cellsB[y*size + x].position={(float)x,(float)y};
-      cellsA[y*size + x].color=dead;
-      if (y>=size/2 && y<size/2+5 ) {
-        if (x<size/2+5 && x>=size/2) {
-          if (x==size/2||x==size/2+4) {
-            cellsA[y*size + x].color=alive;
-          }
-          if ((y==size/2||y==size/2+4)&& x==size/2+2) {
-            cellsA[y*size + x].color=alive;
-          }
-        }
-      }
-    }
   }
 }
 
@@ -109,69 +69,31 @@ void Automata::updateView(){
   grid.setView(view);
 }
 
-void Automata::pollEvent(){
-  sf::Event e;
-  if (running) {
-    update();
-  }
-  while (grid.pollEvent(e)) {
-    if (e.type== sf::Event::Closed) {
-      grid.close();
-    }else if(e.type==sf::Event::KeyPressed){
-      switch (e.key.code) {
-        case sf::Keyboard::Right:
-        update();
-        break;
 
-        case sf::Keyboard::Up:
-        zoom++;
-        updateView();
-        break;
-
-        case sf::Keyboard::Down:
-        if (zoom>1) {
-          zoom--;
-          updateView();
-        }
-        break;
-
-        case sf::Keyboard::A:
-        if(viewx>0){
-          viewx-=10;
-          updateView();
-        }
-        break;
-
-        case sf::Keyboard::D:
-        if(viewx<=size-size/zoom){
-          viewx+=10;
-          updateView();
-        }
-        break;
-
-        case sf::Keyboard::S:
-        if(viewy<size-size/zoom){
-          viewy+=10;
-          updateView();
-        }
-        break;
-
-        case sf::Keyboard::W:
-        if(viewy>0){
-          viewy-=10;
-          updateView();
-        }
-        break;
-
-        case sf::Keyboard::Left:
-        running = !running;
-        break;
-
-        default:
-        break;
-      }
+void Automata::flipCell(int x, int y){
+  x=(x*size) / (zoom*grid.getSize().x);
+  y=(y*size) / (zoom*grid.getSize().y);
+  if (state) {
+    if (getValue(x,y)!=1) {
+      total++;
+      cellsA[y*size + x].color=alive;//white
+      std::cout << "changed: " << x <<','<<y<< " to white" <<std::endl;
+    }else{
+      std::cout << "changed: " << x <<','<<y<< " to Black" <<std::endl;
+      cellsA[y*size + x].color=dead;//black
+    }
+  } else {
+    if (getValue(x,y)!=1) {
+      total++;
+      cellsB[y*size + x].color=alive;//white
+      std::cout << "changed: " << x <<','<<y<< " to white" <<std::endl;
+    }else{
+      std::cout << "changed: " << x <<','<<y<< " to black" <<std::endl;
+      cellsB[y*size + x].color=dead;//black
     }
   }
+
+  updateView();
 }
 
 
@@ -205,11 +127,11 @@ short int Automata::neighSum(float x, float y){
 bool Automata::rule( float x, float y){
     if (getValue(x,y)==1&&neighSum(x,y)>=ls&&neighSum(x,y)<=us) {
       return true;//survives
-    }
-   if(getValue(x,y)==0&&neighSum(x,y)>=lb&&neighSum(x,y)<=ub){
+    }else if(getValue(x,y)==0&&neighSum(x,y)>=lb&&neighSum(x,y)<=ub){
       return true;//born
+    }else{
+      return false;
     }
-  return false;
 }
 
 void Automata::setCell(float x, float y){
@@ -230,10 +152,80 @@ void Automata::setCell(float x, float y){
   }
 }
 
+//Main Loop///////////////////////////////////////////////////////
+void Automata::pollEvent(){
+  sf::Event e;
+  if (running) {
+    update();
+  }
+  while (grid.pollEvent(e)) {
+    if (e.type== sf::Event::Closed) {
+      grid.close();
+    }else if (e.type == sf::Event::MouseButtonPressed){
+      if (e.mouseButton.button == sf::Mouse::Left){
+        flipCell(e.mouseButton.x,e.mouseButton.y);
+      }
+    }else if(e.type==sf::Event::KeyPressed){
+      switch (e.key.code) {
+        case sf::Keyboard::Right:
+        update();
+        break;
 
+        case sf::Keyboard::Up:
+        zoom++;
+        updateView();
+        break;
+
+        case sf::Keyboard::Down:
+        if (zoom>1) {
+          zoom--;
+          updateView();
+        }
+        break;
+
+        case sf::Keyboard::A:
+        if(viewx>0){
+          viewx-=10;
+          updateView();
+        }
+        break;
+
+        case sf::Keyboard::D:
+        if((unsigned)viewx<=size-size/zoom){
+          viewx+=10;
+          updateView();
+        }
+        break;
+
+        case sf::Keyboard::S:
+        if((unsigned)viewy<size-size/zoom){
+          viewy+=10;
+          updateView();
+        }
+        break;
+
+        case sf::Keyboard::W:
+        if(viewy>0){
+          viewy-=10;
+          updateView();
+        }
+        break;
+
+        case sf::Keyboard::Left:
+        running = !running;
+        break;
+
+        default:
+        break;
+      }
+    }
+  }
+}
+
+//Main Program////////////////////////////////////////////////////
 
 int main(int argc, char const *argv[]) {
-  freopen("gens","w+",stdout);
+  //freopen("gens","w+",stdout);
   unsigned int size=strtoul(argv[1], NULL,10);
   double p=strtod(argv[2], NULL);
   short int cr1=strtoul(argv[3], NULL,10),cg1=strtoul(argv[4], NULL,10),cb1=strtoul(argv[5], NULL,10),cr2=strtoul(argv[6], NULL,10),cg2=strtoul(argv[7], NULL,10),cb2=strtoul(argv[8], NULL,10),ls=strtoul(argv[9], NULL,10),us=strtoul(argv[10], NULL,10),lb=strtoul(argv[11], NULL,10),ub=strtoul(argv[12], NULL,10);
