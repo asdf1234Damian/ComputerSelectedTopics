@@ -5,6 +5,7 @@ std::default_random_engine generator(std::chrono::system_clock::now().time_since
 std::normal_distribution<double> distribution(0.0,1.0);
 
 Automata::Automata(unsigned int size, double p,short int cr1,short int cr2,short int cg1,short int cg2,short int cb1,short int cb2,short int ls, short int us, short int lb, short int ub):grid({1000,1000},"Game of life"),cellsA(size*size),cellsB(size*size){
+  grid.setPosition(sf::Vector2i(200,100));
   view.reset(sf::FloatRect(viewx, viewy, size/zoom, size/zoom ));
   this->size=size;
   this->p=p;
@@ -37,7 +38,6 @@ void Automata::flipCell(int x, int y){
       cellsA[y*size + x].color=dead;//black
     }
   }
-
   updateView();
 }
 
@@ -102,7 +102,7 @@ void Automata::setCell(float x, float y){
 void Automata::run(){
   randomStart();
   while (grid.isOpen()) {
-    grid.clear();
+    grid.clear(dead);
     if (state){
       grid.draw(cellsA.data(),cellsA.size(),sf::Points);
     }else{
@@ -129,7 +129,6 @@ void Automata::randomStart(){
   }
   std::cout <<gen<<", "<<total<< '\n';
   total=0;
-
 }
 
 void Automata::update(){
@@ -222,7 +221,7 @@ void Automata::pollEvent(){
 //Main Program////////////////////////////////////////////////////
 
 int main(int argc, char const *argv[]) {
-  freopen("gens","w+",stdout);
+  //freopen("gens","w+",stdout);
   unsigned int size=strtoul(argv[1], NULL,10);
   double p=strtod(argv[2], NULL);
   short int cr1=strtoul(argv[3], NULL,10),cg1=strtoul(argv[4], NULL,10),cb1=strtoul(argv[5], NULL,10),cr2=strtoul(argv[6], NULL,10),cg2=strtoul(argv[7], NULL,10),cb2=strtoul(argv[8], NULL,10),ls=strtoul(argv[9], NULL,10),us=strtoul(argv[10], NULL,10),lb=strtoul(argv[11], NULL,10),ub=strtoul(argv[12], NULL,10);

@@ -13,7 +13,7 @@ class UI:
     def __init__(self):
         self.tk=Tk()
         self.tk.title("Automata")
-        self.tk.geometry("200x800")
+        self.tk.geometry("200x1900+0+100")
 
         #Grid size input
         self.sizeLbl=Label(self.tk,text="Size of the grid")
@@ -29,11 +29,13 @@ class UI:
         self.probIn=Entry(self.tk,width=10,justify="center")
         self.probIn.insert(END,"10")
         self.probIn.pack(side=TOP, padx=10, pady=10)
+        """
         self.pTypes={'Normal'}
         self.pSel=StringVar(self.tk)
         self.pSel.set('Normal')
         self.probType=OptionMenu(self.tk, self.pSel,*self.pTypes)
         self.probType.pack(side=TOP, padx=10, pady=10)
+        """
 
         #Rule
         self.ruleLbl=Label(self.tk,text="Rule")
