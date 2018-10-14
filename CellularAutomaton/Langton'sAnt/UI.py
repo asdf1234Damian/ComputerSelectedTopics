@@ -13,7 +13,7 @@ class UI:
     def __init__(self):
         self.tk=Tk()
         self.tk.title("Automata")
-        self.tk.geometry("200x800")
+        self.tk.geometry("200x1000+0+0")
 
         #Grid size input
         self.sizeLbl=Label(self.tk,text="Size of the grid")
