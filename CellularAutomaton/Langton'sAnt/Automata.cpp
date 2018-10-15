@@ -1,21 +1,23 @@
 #include "Automata.h"
-//#include "Patterns.h"
 
 std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());
 std::normal_distribution<double> distribution(0.0,1.0);
 
 Automata::Automata(unsigned int size, double p,short int cr1,short int cr2,short int cg1,short int cg2,short int cb1,short int cb2):grid({1000,1000},"Good old Lang's Ant"),cells(size*size){
+  grid.setPosition(sf::Vector2i(200,100));
   view.reset(sf::FloatRect(viewx, viewy, size/zoom, size/zoom ));
+  this-> pheromC= sf::Color(cr1,cg1,cb1);
+  this-> cleanC= sf::Color(cr2,cg2,cb2);
   this->size=size;
   this->p=p;
-  this->antUp.loadFromFile("images/01.png");
+  this->antUp.loadFromFile("images/03.png");
   this->antRight.loadFromFile("images/02.png");
-  this->antDown.loadFromFile("images/03.png");
+  this->antDown.loadFromFile("images/01.png");
   this->antLeft.loadFromFile("images/04.png");
   grid.setFramerateLimit(30);
   grid.setView(view);
 }
-//Ant Functions///////////////////////////////////////////////////
+//Ant Functions/////////////////////////////////////////////
 void Automata::addAnt(int x, int y){
   sf::Sprite ant =sf::Sprite();
   ant.setTexture(antUp);
@@ -34,7 +36,123 @@ void Automata::eraseAnt(int x, int y){
   }
 }
 
-//Cell Functions//////////////////////////////////////////////////
+void Automata::rotateAnt(int x, int y, int angle){
+  for (size_t i = 0; i < ants.size(); i++) {
+    if (ants[i].getPosition()==sf::Vector2f(x,y)) {
+      if (angle==1) {
+        switch (getDir(ants[i])) {
+          case 1:
+          ants[i].setTexture(antRight);
+          break;
+
+          case 2:
+          ants[i].setTexture(antDown);
+          break;
+
+          case 3:
+          ants[i].setTexture(antLeft);
+          break;
+
+          case 4:
+          ants[i].setTexture(antUp);
+          break;
+        }
+      }else{
+        switch (getDir(ants[i])) {
+          case 1:
+          ants[i].setTexture(antLeft);
+          break;
+
+          case 2:
+          ants[i].setTexture(antUp);
+          break;
+
+          case 3:
+          ants[i].setTexture(antRight);
+          break;
+
+          case 4:
+          ants[i].setTexture(antDown);
+          break;
+        }
+      }
+    }
+  }
+}
+
+void Automata::rotateAnt(sf::Sprite ant){
+  switch (getDir(ant)) {
+    case 1:
+    ant.setTexture(antRight);
+    break;
+
+    case 2:
+    ant.setTexture(antDown);
+    break;
+
+    case 3:
+    ant.setTexture(antLeft);
+    break;
+
+    case 4:
+    ant.setTexture(antUp);
+    break;
+  }
+}
+
+sf::Vector2f Automata::moveAhead(sf::Sprite ant){
+  float x=ant.getPosition().x;
+  float y=ant.getPosition().y;
+  switch (getDir(ant)) {
+    case 1:
+    y++;
+    break;
+
+    case 2:
+    x++;
+    break;
+
+    case 3:
+    y--;
+    break;
+
+    case 4:
+    x--;
+    break;
+
+  }
+  if (x<0) {x=size-1;}else if (x>=size) {x=0;}
+  if (y<0) {y=size-1;}else if (y>=size) {y=0;}
+  return sf::Vector2f(x,y);
+}
+
+//Aux Functions/////////////////////////////////////////////
+
+bool Automata::antExist(int x, int y){
+  for (size_t i = 0; i <ants.size(); i++) {
+    if (ants[i].getPosition().x==x && ants[i].getPosition().y==y){
+      return 1;
+    }
+  }
+  return 0;
+}
+
+int Automata::getDir(sf::Sprite ant){
+  if (ant.getTexture()==&antUp)
+  return 1;
+  if (ant.getTexture()==&antRight)
+  return 2;
+  if (ant.getTexture()==&antDown)
+  return 3;
+  if (ant.getTexture()==&antLeft)
+  return 4;
+  return 0;
+}
+
+bool Automata::standing(sf::Sprite ant){
+  return getValue(ant.getPosition().x,ant.getPosition().y);
+}
+
 size_t Automata::getIndex(float x, float y){
   return (y*size + x);
 }
@@ -49,44 +167,16 @@ bool Automata::getValue(float x, float y){
   }
 }
 
-bool Automata::rule( float x, float y){
-    //TODO
-    return false;
-}
-
-/*void Automata::setCell(sf::Circle){
-  if (state) {
-    if (standing(sf::Sprite)) {
-      totalPher++;
-      cellsB[y*size + x].color=pheromC;//white
-    }else{
-      cellsB[y*size + x].color=cleanC;//black
-    }
-  } else {
-    if (rule(x,y)) {
-      totalPher++;
-      cellsA[y*size + x].color=pheromC;//white
-    }else{
-      cellsA[y*size + x].color=cleanC;//black
-    }
+void Automata::flipCell(int x, int y){
+  if (getValue(x,y)!=1) {
+    totalPher++;
+    cells[y*size + x].color=pheromC;//white
+  }else{
+    cells[y*size + x].color=cleanC;//black
   }
 }
-*/
-//Main Loop///////////////////////////////////////////////////////
-//Where things are drawn//////////////////////////////////////////
 
-void Automata::run(){
-  randomStart();
-  while (grid.isOpen()) {
-    grid.clear(cleanC);
-    for (size_t i = 0; i < ants.size(); i++) {
-      grid.draw(ants[i]);
-    }
-    grid.draw(cells.data(),cells.size(),sf::Points);
-    grid.display();
-    pollEvent();
-  }
-}
+//Init  Functions///////////////////////////////////////////
 
 void Automata::randomStart(){
   for (size_t x = 0; x < size; x++){
@@ -106,128 +196,17 @@ void Automata::randomStart(){
   totalAnts=0;
 }
 
-bool Automata::antExist(int x, int y){
-  for (size_t i = 0; i <ants.size(); i++) {
-    if (ants[i].getPosition().x==x && ants[i].getPosition().y==y){
-      return 1;
+void Automata::run(){
+  randomStart();
+  while (grid.isOpen()) {
+    grid.clear(cleanC);
+    for (size_t i = 0; i < ants.size(); i++) {
+      grid.draw(ants[i]);
     }
+    grid.draw(cells.data(),cells.size(),sf::Points);
+    grid.display();
+    pollEvent();
   }
-  return 0;
-}
-
-int Automata::getDir(sf::Sprite ant){
-  if (ant.getTexture()==&antUp)
-    return 1;
-  if (ant.getTexture()==&antRight)
-    return 2;
-  if (ant.getTexture()==&antDown)
-    return 3;
-  if (ant.getTexture()==&antLeft)
-    return 4;
-  return 0;
-}
-
-void Automata::flipCell(int x, int y){
-  if (getValue(x,y)!=1) {
-    totalPher++;
-    cells[y*size + x].color=pheromC;//white
-  }else{
-    cells[y*size + x].color=cleanC;//black
-  }
-}
-
-bool Automata::standing(sf::Sprite ant){
-  return getValue(ant.getPosition().x,ant.getPosition().y);
-}
-
-void Automata::rotateAnt(int x, int y, int angle){
-  for (size_t i = 0; i < ants.size(); i++) {
-    if (ants[i].getPosition()==sf::Vector2f(x,y)) {
-      if (angle==1) {
-        switch (getDir(ants[i])) {
-          case 1:
-            ants[i].setTexture(antRight);
-          break;
-
-          case 2:
-            ants[i].setTexture(antDown);
-          break;
-
-          case 3:
-            ants[i].setTexture(antLeft);
-          break;
-
-          case 4:
-            ants[i].setTexture(antUp);
-          break;
-        }
-      }else{
-        switch (getDir(ants[i])) {
-          case 1:
-            ants[i].setTexture(antLeft);
-          break;
-
-          case 2:
-            ants[i].setTexture(antUp);
-          break;
-
-          case 3:
-            ants[i].setTexture(antRight);
-          break;
-
-          case 4:
-            ants[i].setTexture(antDown);
-          break;
-        }
-      }
-    }
-  }
-}
-
-void Automata::rotateAnt(sf::Sprite ant){
-  switch (getDir(ant)) {
-    case 1:
-      ant.setTexture(antRight);
-    break;
-
-    case 2:
-      ant.setTexture(antDown);
-    break;
-
-    case 3:
-      ant.setTexture(antLeft);
-    break;
-
-    case 4:
-      ant.setTexture(antUp);
-    break;
-  }
-}
-
-sf::Vector2f Automata::moveAhead(sf::Sprite ant){
-  float x=ant.getPosition().x;
-  float y=ant.getPosition().y;
-  switch (getDir(ant)) {
-    case 1:
-      y++;
-    break;
-
-    case 2:
-      x++;
-    break;
-
-    case 3:
-      y--;
-    break;
-
-    case 4:
-      x--;
-    break;
-
-  }
-  if (x<0) {x=size-1;}else if (x>=size) {x=0;}
-  if (y<0) {y=size-1;}else if (y>=size) {y=0;}
-  return sf::Vector2f(x,y);
 }
 
 void Automata::update(){
@@ -241,7 +220,9 @@ void Automata::update(){
       rotateAnt(x, y, 3);
     }
     flipCell(x,y);
-    ants[i].setPosition(moveAhead(ants[i]));
+    if (!antExist(moveAhead(ants[i]).x,moveAhead(ants[i]).y)){
+      ants[i].setPosition(moveAhead(ants[i]));
+    }
   }
   gen++;
   std::cout <<gen<<", "<<totalPher<< '\n';
@@ -333,10 +314,10 @@ void Automata::pollEvent(){
   }
 }
 
-//Main Program////////////////////////////////////////////////////
+//Main Program//////////////////////////////////////////////
 
 int main(int argc, char const *argv[]) {
-  //freopen("gens","w+",stdout);
+  freopen("gens","w+",stdout);
   //Size
   unsigned int size=strtoul(argv[1], NULL,10);
   //Probability

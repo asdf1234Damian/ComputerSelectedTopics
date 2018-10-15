@@ -29,18 +29,6 @@ class UI:
         self.probIn=Entry(self.tk,width=10,justify="center")
         self.probIn.insert(END,"10")
         self.probIn.pack(side=TOP, padx=10, pady=10)
-        self.pTypes={'Normal'}
-        self.pSel=StringVar(self.tk)
-        self.pSel.set('Normal')
-        self.probType=OptionMenu(self.tk, self.pSel,*self.pTypes)
-        self.probType.pack(side=TOP, padx=10, pady=10)
-
-        #Rule
-        self.ruleLbl=Label(self.tk,text="Rule")
-        self.ruleLbl.pack(side=TOP, padx=10, pady=(10,5))
-        self.ruleIn=Entry(self.tk,width=10,justify="center")
-        self.ruleIn.insert(END,"2,3,3,3")
-        self.ruleIn.pack(side=TOP, padx=10, pady=(10,5))
 
 
         #Start
@@ -64,12 +52,7 @@ class UI:
 
     def run(self):
         pNorm="{:.5f}".format(st.norm.ppf(float(self.probIn.get())/100))
-        rule=self.ruleIn.get().split(',')
-        ls=rule[0]
-        us=rule[1]
-        lb=rule[2]
-        ub=rule[3]
-        automat=Popen(["./Automata",self.sizeIn.get(),pNorm,str(int(self.colora[0][0])),str(int(self.colora[0][1])),str(int(self.colora[0][2])),str(int(self.colorb[0][0])),str(int(self.colorb[0][1])), str(int(self.colorb[0][2])),ls,us,lb,ub])
+        automat=Popen(["./Automata",self.sizeIn.get(),pNorm,str(int(self.colora[0][0])),str(int(self.colora[0][1])),str(int(self.colora[0][2])),str(int(self.colorb[0][0])),str(int(self.colorb[0][1])), str(int(self.colorb[0][2]))])
         automat.wait()
         self.plot()
 
