@@ -4,7 +4,7 @@
 std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());
 std::normal_distribution<double> distribution(0.0,1.0);
 
-Automata::Automata(unsigned int size, double p,short int cr1,short int cr2,short int cg1,short int cg2,short int cb1,short int cb2):grid({1000,1000},"Good old Lang's Ant"),cellsA(size*size),cellsB(size*size){
+Automata::Automata(unsigned int size, double p,short int cr1,short int cr2,short int cg1,short int cg2,short int cb1,short int cb2):grid({1000,1000},"Good old Lang's Ant"),cells(size*size){
   view.reset(sf::FloatRect(viewx, viewy, size/zoom, size/zoom ));
   this->size=size;
   this->p=p;
@@ -42,19 +42,10 @@ size_t Automata::getIndex(float x, float y){
 bool Automata::getValue(float x, float y){
   if (x<0) {x=size-1;}else if (x>=size) {x=0;}
   if (y<0) {y=size-1;}else if (y>=size) {y=0;}
-
-  if (state) {
-    if (cellsA[getIndex(x,y)].color==pheromC) {
-      return true;
-    }else{
-      return false;
-    }
+  if (cells[getIndex(x,y)].color==pheromC) {
+    return true;
   }else{
-    if (cellsB[getIndex(x,y)].color==pheromC) {
-      return true;
-    }else{
-      return false;
-    }
+    return false;
   }
 }
 
@@ -91,12 +82,7 @@ void Automata::run(){
     for (size_t i = 0; i < ants.size(); i++) {
       grid.draw(ants[i]);
     }
-    if (state){
-      grid.draw(cellsA.data(),cellsA.size(),sf::Points);
-
-    }else{
-      grid.draw(cellsB.data(),cellsB.size(),sf::Points);
-    }
+    grid.draw(cells.data(),cells.size(),sf::Points);
     grid.display();
     pollEvent();
   }
@@ -105,10 +91,8 @@ void Automata::run(){
 void Automata::randomStart(){
   for (size_t x = 0; x < size; x++){
     for (size_t y = 0; y < size; y++) {
-      cellsA[y*size + x].position={(float)x,(float)y};
-      cellsB[y*size + x].position={(float)x,(float)y};
-      cellsA[y*size + x].color=cleanC;
-      cellsB[y*size + x].color=cleanC;
+      cells[y*size + x].position={(float)x,(float)y};
+      cells[y*size + x].color=cleanC;
       //addAnt(x,y);
       /*
       if (distribution(generator)<p) {
@@ -144,22 +128,12 @@ int Automata::getDir(sf::Sprite ant){
 }
 
 void Automata::flipCell(int x, int y){
-  if (state) {
-    if (getValue(x,y)!=1) {
-      totalPher++;
-      cellsB[y*size + x].color=pheromC;//white
-    }else{
-      cellsB[y*size + x].color=cleanC;//black
-    }
-  } else {
-    if (getValue(x,y)!=1) {
-      totalPher++;
-      cellsA[y*size + x].color=pheromC;//white
-    }else{
-      cellsA[y*size + x].color=cleanC;//black
-    }
+  if (getValue(x,y)!=1) {
+    totalPher++;
+    cells[y*size + x].color=pheromC;//white
+  }else{
+    cells[y*size + x].color=cleanC;//black
   }
-  updateView();
 }
 
 bool Automata::standing(sf::Sprite ant){
@@ -172,7 +146,7 @@ void Automata::rotateAnt(int x, int y, int angle){
       if (angle==1) {
         switch (getDir(ants[i])) {
           case 1:
-          ants[i].setTexture(antRight);
+            ants[i].setTexture(antRight);
           break;
 
           case 2:
@@ -190,7 +164,7 @@ void Automata::rotateAnt(int x, int y, int angle){
       }else{
         switch (getDir(ants[i])) {
           case 1:
-          ants[i].setTexture(antLeft);
+            ants[i].setTexture(antLeft);
           break;
 
           case 2:
@@ -206,7 +180,6 @@ void Automata::rotateAnt(int x, int y, int angle){
           break;
         }
       }
-
     }
   }
 }
@@ -250,9 +223,13 @@ sf::Vector2f Automata::moveAhead(sf::Sprite ant){
     case 4:
       x--;
     break;
+
   }
+  if (x<0) {x=size-1;}else if (x>=size) {x=0;}
+  if (y<0) {y=size-1;}else if (y>=size) {y=0;}
   return sf::Vector2f(x,y);
 }
+
 void Automata::update(){
   float x,y;
   for (size_t i = 0; i < ants.size(); i++) {

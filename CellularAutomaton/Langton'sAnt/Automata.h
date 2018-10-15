@@ -36,8 +36,7 @@ private:
   sf::View view;
   bool running=false;
   bool state=true;//True sets current state to A,false to B
-  std::vector<sf::Vertex> cellsA;
-  std::vector<sf::Vertex> cellsB;
+  std::vector<sf::Vertex> cells;
   std::vector<sf::Sprite> ants;
   void pollEvent();
   bool getValue(float, float);
