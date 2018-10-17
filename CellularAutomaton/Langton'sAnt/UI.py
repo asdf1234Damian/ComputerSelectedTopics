@@ -19,7 +19,7 @@ class UI:
         self.sizeLbl=Label(self.tk,text="Size of the grid")
         self.sizeLbl.pack(side=TOP, padx=10, pady=(200,5))
         self.sizeIn=Entry(self.tk,width=10,justify="center")
-        self.sizeIn.insert(END,"400")
+        self.sizeIn.insert(END,"100")
         self.sizeIn.pack(side=TOP, padx=10, pady=10)
 
 
@@ -27,13 +27,21 @@ class UI:
         self.sizeLbl=Label(self.tk,text="Probability")
         self.sizeLbl.pack(side=TOP, padx=10, pady=(10,5))
         self.probIn=Entry(self.tk,width=10,justify="center")
-        self.probIn.insert(END,"10")
+        self.probIn.insert(END,"0")
         self.probIn.pack(side=TOP, padx=10, pady=10)
 
 
         #Start
-        self.startBttn= Button(self.tk, text="Run",state="active", command=self.run)
+        self.startBttn= Button(self.tk, text="Normal",state="active", command=self.run)
         self.startBttn.pack(side=TOP, padx=10, pady=10)
+
+        #Start with colors
+        self.startCBttn= Button(self.tk, text="Colors",state="active", command=self.runCol)
+        self.startCBttn.pack(side=TOP, padx=10, pady=10)
+
+        #StartQueen
+        self.startQBttn= Button(self.tk, text="Queens",state="active", command=self.runCol)
+        self.startQBttn.pack(side=TOP, padx=10, pady=10)
 
         #Colors
         self.colora=((250.0,250.0,250.0), '#ffffff')
@@ -52,7 +60,13 @@ class UI:
 
     def run(self):
         pNorm="{:.5f}".format(st.norm.ppf(float(self.probIn.get())/100))
-        automat=Popen(["./Automata",self.sizeIn.get(),pNorm,str(int(self.colora[0][0])),str(int(self.colora[0][1])),str(int(self.colora[0][2])),str(int(self.colorb[0][0])),str(int(self.colorb[0][1])), str(int(self.colorb[0][2]))])
+        automat=Popen(["./Automata",self.sizeIn.get(),pNorm,str(int(self.colora[0][0])),str(int(self.colora[0][1])),str(int(self.colora[0][2])),str(int(self.colorb[0][0])),str(int(self.colorb[0][1])), str(int(self.colorb[0][2])),'0'])
+        automat.wait()
+        self.plot()
+
+    def runCol(self):
+        pNorm="{:.5f}".format(st.norm.ppf(float(self.probIn.get())/100))
+        automat=Popen(["./Automata",self.sizeIn.get(),pNorm,str(int(self.colora[0][0])),str(int(self.colora[0][1])),str(int(self.colora[0][2])),str(int(self.colorb[0][0])),str(int(self.colorb[0][1])), str(int(self.colorb[0][2])),'1'])
         automat.wait()
         self.plot()
 
@@ -77,11 +91,11 @@ class UI:
         y_mean = [n]*len(x)
         mean_line = plt.plot(x,y_mean, label='Mean: '+str(round(m,2))+'%', linestyle='--')
         if self.colora[1]=='#ffffff':
-            plt.plot(x,y,self.colorb[1], label='Living Cells')
+            plt.plot(x,y,self.colorb[1], label='Pheromones')
         else:
-            plt.plot(x,y,self.colora[1], label='Living Cells')
+            plt.plot(x,y,self.colora[1], label='Pheromones')
         plt.xlabel('Gen')
-        plt.ylabel('Alive')
+        plt.ylabel('Pheromones')
         plt.title('Size'+self.sizeIn.get()+'x'+self.sizeIn.get()+'\n')
         plt.legend()
         plt.show()
