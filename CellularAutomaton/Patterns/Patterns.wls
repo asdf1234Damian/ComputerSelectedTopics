@@ -1,4 +1,4 @@
-#!/usr/bin/env wolframscript
+#!/usr/bin/wolframscript -cloud -print -format PNG
 (* ::Package:: *)
 
 (*Game of Life size 2 Toroid*)

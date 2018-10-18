@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-python UI.py
+python source/UI.py
