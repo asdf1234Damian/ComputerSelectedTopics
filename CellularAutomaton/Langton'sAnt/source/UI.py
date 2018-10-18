@@ -60,13 +60,13 @@ class UI:
 
     def run(self):
         pNorm="{:.5f}".format(st.norm.ppf(float(self.probIn.get())/100))
-        automat=Popen(["./Automata",self.sizeIn.get(),pNorm,str(int(self.colora[0][0])),str(int(self.colora[0][1])),str(int(self.colora[0][2])),str(int(self.colorb[0][0])),str(int(self.colorb[0][1])), str(int(self.colorb[0][2])),'0'])
+        automat=Popen(["source/./Automata",self.sizeIn.get(),pNorm,str(int(self.colora[0][0])),str(int(self.colora[0][1])),str(int(self.colora[0][2])),str(int(self.colorb[0][0])),str(int(self.colorb[0][1])), str(int(self.colorb[0][2])),'0'])
         automat.wait()
         self.plot()
 
     def runCol(self):
         pNorm="{:.5f}".format(st.norm.ppf(float(self.probIn.get())/100))
-        automat=Popen(["./Automata",self.sizeIn.get(),pNorm,str(int(self.colora[0][0])),str(int(self.colora[0][1])),str(int(self.colora[0][2])),str(int(self.colorb[0][0])),str(int(self.colorb[0][1])), str(int(self.colorb[0][2])),'1'])
+        automat=Popen(["source/./Automata",self.sizeIn.get(),pNorm,str(int(self.colora[0][0])),str(int(self.colora[0][1])),str(int(self.colora[0][2])),str(int(self.colorb[0][0])),str(int(self.colorb[0][1])), str(int(self.colorb[0][2])),'1'])
         automat.wait()
         self.plot()
 
@@ -77,6 +77,8 @@ class UI:
     def getColorb(self):
         self.colorb = askcolor()
         self.colorPickb.configure(bg = self.colorb[1])
+        for i  in range():
+            pass
 
     def plot(self):
         x = []
