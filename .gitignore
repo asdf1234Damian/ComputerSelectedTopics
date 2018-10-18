@@ -1,9 +1,15 @@
 #Generated Text Files
+
 #Automata
 CellularAutomaton/Automata/gen
+
 #Langtons Ant
 CellularAutomaton/Langton\'sAnt/gens
 CellularAutomaton/Langton'sAnt/gens
+
+#Patterns
+CellularAutomaton/Patterns/txtfiles/
+
 #https://github.com/github/gitignore/blob/master/C%2B%2B.gitignore
 
 # Prerequisites
