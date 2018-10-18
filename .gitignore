@@ -3,6 +3,7 @@
 CellularAutomaton/source/gen
 #Langtons Ant
 CellularAutomaton/Langton\'sAnt/source/gens
+CellularAutomaton/Langton'sAnt/source/gens
 #https://github.com/github/gitignore/blob/master/C%2B%2B.gitignore
 
 # Prerequisites
