@@ -1,9 +1,9 @@
 #Generated Text Files
 #Automata
-CellularAutomaton/source/gen
+CellularAutomaton/Automata/gen
 #Langtons Ant
-CellularAutomaton/Langton\'sAnt/source/gens
-CellularAutomaton/Langton'sAnt/source/gens
+CellularAutomaton/Langton\'sAnt/gens
+CellularAutomaton/Langton'sAnt/gens
 #https://github.com/github/gitignore/blob/master/C%2B%2B.gitignore
 
 # Prerequisites
