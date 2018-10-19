@@ -6,6 +6,15 @@
 #include <chrono>
 #include <random>
 
+class Cell{
+public:
+  Cell();
+  void CellInit(float,float,bool);
+  float x,y;
+  bool state;
+private:
+};
+
 class Automata{
 public:
   unsigned int size;
@@ -16,8 +25,6 @@ public:
   int ls=2,us=3,lb=3,ub=3,zoom=1,viewx=0,viewy=0,total=0, gen=1;
   void run();
   void randomStart();
-  //void gliderStart();
-  //void exploderStart();
   void update();
   void flipCell(int, int);
   void updateView();
@@ -26,8 +33,8 @@ private:
   sf::View view;
   bool running=false;
   bool state=true;//True sets current state to A,false to B
-  std::vector<sf::Vertex> cellsA;
-  std::vector<sf::Vertex> cellsB;
+  std::vector<Cell> cellsA;
+  std::vector<Cell> cellsB;
   void pollEvent();
   short int getValue(float, float);
   short int neighSum(float, float );
