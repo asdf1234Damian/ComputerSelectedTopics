@@ -2,7 +2,11 @@
 
 std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());
 std::normal_distribution<double> distribution(0.0,1.0);
-
+void Automata::printGens(){
+  for (auto elem: colorMap)  {
+    std::cout << gen <<',' << (unsigned) sf::Color(elem.first).r <<','<< (unsigned) sf::Color(elem.first).g <<','<< (unsigned) sf::Color(elem.first).b <<','<< elem.second<< '\n';
+  }
+}
 
 Automata::Automata(unsigned int size, double p,short int cr1,short int cr2,short int cg1,short int cg2,short int cb1,short int cb2, short int mode):grid({1000,1000},"Good old Lang's Ant"),cells(size*size){
   grid.setPosition(sf::Vector2i(200,100));
@@ -12,10 +16,22 @@ Automata::Automata(unsigned int size, double p,short int cr1,short int cr2,short
   this->size=size;
   this->p=p;
   this->mode=mode;
-  this->antUp.loadFromFile("images/03.png");
-  this->antRight.loadFromFile("images/02.png");
-  this->antDown.loadFromFile("images/01.png");
-  this->antLeft.loadFromFile("images/04.png");
+
+  this->workerUp.loadFromFile("images/workerU.png");
+  this->workerRight.loadFromFile("images/workerR.png");
+  this->workerDown.loadFromFile("images/workerD.png");
+  this->workerLeft.loadFromFile("images/workerL.png");
+
+  /*this->queenUp.loadFromFile("images/03.png");
+  this->queenRight.loadFromFile("images/02.png");
+  this->queenDown.loadFromFile("images/01.png");
+  this->queenLeft.loadFromFile("images/04.png");
+
+  this->repUp.loadFromFile("images/03.png");
+  this->repRight.loadFromFile("images/02.png");
+  this->repDown.loadFromFile("images/01.png");
+  this->repLeft.loadFromFile("images/04.png");
+  */
   grid.setFramerateLimit(30);
   grid.setView(view);
 }
@@ -23,17 +39,18 @@ Automata::Automata(unsigned int size, double p,short int cr1,short int cr2,short
 void Automata::addAnt(int x, int y){
   if (mode==0) {
     sf::Sprite body =sf::Sprite();
-    body.setTexture(antUp);
+    body.setTexture(workerUp);
     body.setScale(.003, .003);
     body.setPosition((float) x, (float) y);
     std::pair<sf::Sprite, sf::Color> ant(body,pheromC);
     ants.push_back(ant);
   } else {
     sf::Sprite body =sf::Sprite();
-    body.setTexture(antUp);
+    body.setTexture(workerUp);
     body.setScale(.003, .003);
     body.setPosition((float) x, (float) y);
     std::pair<sf::Sprite, sf::Color> ant(body,sf::Color(rand()%250,rand()%250,rand()%250));
+    colorMap.insert(std::pair<int, int>(ant.second.toInteger(),0));
     ants.push_back(ant);
   }
 }
@@ -52,37 +69,37 @@ void Automata::rotateAnt(int x, int y, int angle){
       if (angle==1) {
         switch (getDir(ants[i].first)) {
           case 1:
-          ants[i].first.setTexture(antRight);
+          ants[i].first.setTexture(workerRight);
           break;
 
           case 2:
-          ants[i].first.setTexture(antDown);
+          ants[i].first.setTexture(workerDown);
           break;
 
           case 3:
-          ants[i].first.setTexture(antLeft);
+          ants[i].first.setTexture(workerLeft);
           break;
 
           case 4:
-          ants[i].first.setTexture(antUp);
+          ants[i].first.setTexture(workerUp);
           break;
         }
       }else{
         switch (getDir(ants[i].first)) {
           case 1:
-          ants[i].first.setTexture(antLeft);
+          ants[i].first.setTexture(workerLeft);
           break;
 
           case 2:
-          ants[i].first.setTexture(antUp);
+          ants[i].first.setTexture(workerUp);
           break;
 
           case 3:
-          ants[i].first.setTexture(antRight);
+          ants[i].first.setTexture(workerRight);
           break;
 
           case 4:
-          ants[i].first.setTexture(antDown);
+          ants[i].first.setTexture(workerDown);
           break;
         }
       }
@@ -93,19 +110,19 @@ void Automata::rotateAnt(int x, int y, int angle){
 void Automata::rotateAnt(sf::Sprite ant){
   switch (getDir(ant)) {
     case 1:
-    ant.setTexture(antRight);
+    ant.setTexture(workerRight);
     break;
 
     case 2:
-    ant.setTexture(antDown);
+    ant.setTexture(workerDown);
     break;
 
     case 3:
-    ant.setTexture(antLeft);
+    ant.setTexture(workerLeft);
     break;
 
     case 4:
-    ant.setTexture(antUp);
+    ant.setTexture(workerUp);
     break;
   }
 }
@@ -148,13 +165,13 @@ bool Automata::antExist(int x, int y){
 }
 
 int Automata::getDir(sf::Sprite ant){
-  if (ant.getTexture()==&antUp)
+  if (ant.getTexture()==&workerUp)
   return 1;
-  if (ant.getTexture()==&antRight)
+  if (ant.getTexture()==&workerRight)
   return 2;
-  if (ant.getTexture()==&antDown)
+  if (ant.getTexture()==&workerDown)
   return 3;
-  if (ant.getTexture()==&antLeft)
+  if (ant.getTexture()==&workerLeft)
   return 4;
   return 0;
 }
@@ -177,20 +194,20 @@ bool Automata::getValue(float x, float y){
 
 void Automata::flipCell(int x, int y){
   if (getValue(x,y)!=1) {
-    totalPher++;
+    colorMap[pheromC.toInteger()]++;
     cells[y*size + x].setFillColor(pheromC);//white
   }else{
-    totalPher--;
+    colorMap[pheromC.toInteger()]--;
     cells[y*size + x].setFillColor(cleanC);//black
   }
 }
 
 void Automata::flipCell(int x, int y,sf::Color AntCol){
   if (getValue(x,y)!=1) {
-    totalPher++;
+    colorMap[AntCol.toInteger()]++;
     cells[y*size + x].setFillColor(AntCol);//white
   }else{
-    totalPher--;
+    colorMap[AntCol.toInteger()]--;
     cells[y*size + x].setFillColor(cleanC);//black
   }
 }
@@ -209,7 +226,7 @@ void Automata::randomStart(){
       }
     }
   }
-  std::cout <<gen<<", "<< totalPher<< '\n';
+  printGens();
 }
 
 void Automata::run(){
@@ -252,7 +269,7 @@ void Automata::update(){
     }
   }
   gen++;
-  std::cout <<gen<<", "<<totalPher<< '\n';
+  printGens();
   state=!state;
 }
 
