@@ -19,7 +19,7 @@ class UI:
         self.sizeLbl=Label(self.tk,text="Size of the grid")
         self.sizeLbl.pack(side=TOP, padx=10, pady=(200,5))
         self.sizeIn=Entry(self.tk,width=10,justify="center")
-        self.sizeIn.insert(END,"100")
+        self.sizeIn.insert(END,"40")
         self.sizeIn.pack(side=TOP, padx=10, pady=10)
 
 
@@ -27,7 +27,7 @@ class UI:
         self.sizeLbl=Label(self.tk,text="Probability")
         self.sizeLbl.pack(side=TOP, padx=10, pady=(10,5))
         self.probIn=Entry(self.tk,width=10,justify="center")
-        self.probIn.insert(END,"0")
+        self.probIn.insert(END,"0.1")
         self.probIn.pack(side=TOP, padx=10, pady=10)
 
 
@@ -82,20 +82,26 @@ class UI:
 
     def plot(self):
         x = []
+        c = set(tuple())
         y = []
+        currentCX=[]
+        currentCY=[]
+
         with open('gens','r') as csvfile:
             plots = csv.reader(csvfile, delimiter=',')
             for row in plots:
                 x.append(int(row[0]))
-                y.append(int(row[1]))
-        m=100*np.mean(y)/(int(self.sizeIn.get())* int(self.sizeIn.get()))
-        n=np.mean(y)
-        y_mean = [n]*len(x)
-        mean_line = plt.plot(x,y_mean, label='Mean: '+str(round(m,2))+'%', linestyle='--')
-        if self.colora[1]=='#ffffff':
-            plt.plot(x,y,self.colorb[1], label='Pheromones')
-        else:
-            plt.plot(x,y,self.colora[1], label='Pheromones')
+                c.add(tuple((float(row[1])/250,float(row[2])/250,float(row[3])/250,float(1.0/2))))
+                y.append(int(row[4]))
+
+
+        for i in range(list(len(c))):
+            currentCX=[]
+            currentCY=[]
+            for j in range(i,len(x),len(c)):
+                currentCX.append(x[j])
+                currentCY.append(y[j])
+            plt.plot(currentCX,currentCY,color=list(c)[i],label=str('hormiga'+str(i)))
         plt.xlabel('Gen')
         plt.ylabel('Pheromones')
         plt.title('Size'+self.sizeIn.get()+'x'+self.sizeIn.get()+'\n')
