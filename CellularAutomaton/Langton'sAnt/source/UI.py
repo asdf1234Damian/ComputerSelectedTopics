@@ -95,10 +95,20 @@ class UI:
                 y.append(int(row[4]))
 
 
+<<<<<<< HEAD
         for i in range(list(len(c))):
             currentCX=[]
             currentCY=[]
             for j in range(i,len(x),len(c)):
+=======
+        for i in range(len(c)):
+            currentCX=[]
+            currentCY=[]
+            for j in range(i,len(x),len(c)):
+                """print(x[j])
+                print(y[j])
+                print(list(c)[i])"""
+>>>>>>> c7d742eed927068c4a4ce770e083e10f9f5fb752
                 currentCX.append(x[j])
                 currentCY.append(y[j])
             plt.plot(currentCX,currentCY,color=list(c)[i],label=str('hormiga'+str(i)))
