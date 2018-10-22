@@ -2,6 +2,7 @@
 
 #Automata
 CellularAutomaton/Automata/gens
+CellularAutomaton/Experimental/gens
 
 #Langtons Ant
 CellularAutomaton/Langton\'sAnt/gens
