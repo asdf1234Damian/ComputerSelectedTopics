@@ -2,6 +2,10 @@
 
 std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());
 std::normal_distribution<double> distribution(0.0,1.0);
+sf::RectangleShape r = sf::RectangleShape();
+sf::Vertex v;
+float treshhold=300;
+float cellsize=.6;
 void Automata::printGens(){
   for (auto elem: colorMap)  {
     std::cout << gen <<',' << (unsigned) sf::Color(elem.first).r <<','<< (unsigned) sf::Color(elem.first).g <<','<< (unsigned) sf::Color(elem.first).b <<','<< elem.second<< '\n';
@@ -185,7 +189,7 @@ size_t Automata::getIndex(float x, float y){
 }
 
 bool Automata::getValue(float x, float y){
-  if (cells[getIndex(x,y)].getFillColor()==cleanC) {
+  if (cells[getIndex(x,y)].color==cleanC) {
     return false;
   }else{
     return true;
@@ -195,20 +199,20 @@ bool Automata::getValue(float x, float y){
 void Automata::flipCell(int x, int y){
   if (getValue(x,y)!=1) {
     colorMap[pheromC.toInteger()]++;
-    cells[y*size + x].setFillColor(pheromC);//white
+    cells[y*size + x].color=pheromC;//white
   }else{
     colorMap[pheromC.toInteger()]--;
-    cells[y*size + x].setFillColor(cleanC);//black
+    cells[y*size + x].color=cleanC;//black
   }
 }
 
 void Automata::flipCell(int x, int y,sf::Color AntCol){
   if (getValue(x,y)!=1) {
     colorMap[AntCol.toInteger()]++;
-    cells[y*size + x].setFillColor(AntCol);//white
+    cells[y*size + x].color=AntCol;//white
   }else{
     colorMap[AntCol.toInteger()]--;
-    cells[y*size + x].setFillColor(cleanC);//black
+    cells[y*size + x].color=cleanC;//black
   }
 }
 
@@ -217,9 +221,10 @@ void Automata::flipCell(int x, int y,sf::Color AntCol){
 void Automata::randomStart(){
   for (size_t x = 0; x < size; x++){
     for (size_t y = 0; y < size; y++) {
-      cells[y*size + x].setPosition({(float)x,(float)y});
-      cells[y*size + x].setSize({(float)1000/size,(float)1000/size});
-      cells[y*size + x].setFillColor(cleanC);
+
+      cells[y*size + x].x=(float)x;
+      cells[y*size + x].y=(float)y;
+      cells[y*size + x].color=cleanC;
       if (distribution(generator)<p) {
         totalAnts++;
         addAnt(x, y);
@@ -231,15 +236,22 @@ void Automata::randomStart(){
 
 void Automata::run(){
   randomStart();
-  auto border=sf::RectangleShape ({(float)size-1,(float)size-1});
-  border.setPosition({0,0});
-  border.setOutlineColor(sf::Color({250,0,0}));
-  border.setOutlineThickness(.2);
   while (grid.isOpen()) {
     grid.clear(cleanC);
-    grid.draw(border);
     for (size_t i = 0; i < size*size; i++) {
-      grid.draw(cells[i]);
+      if(cells[i].color!=cleanC){
+        if (size/zoom<=treshhold) {
+          r.setPosition({(float)cells[i].x,(float)cells[i].y});
+          r.setSize({(float)cellsize,(float)cellsize});
+          r.setFillColor(cells[i].color);
+          grid.draw(r);
+        }
+        else {
+            v= sf::Vertex({cells[i].x,cells[i].y},cells[i].color);
+            grid.draw(&v,1,sf::Points);
+        }
+        
+      }
     }
     for (size_t i = 0; i < ants.size(); i++) {
       grid.draw(ants[i].first );
@@ -274,8 +286,13 @@ void Automata::update(){
 }
 
 void Automata::updateView(){
-  view.reset(sf::FloatRect(viewx, viewy, size/zoom, size/zoom ));
-  grid.setView(view);
+  if(size/zoom==1){
+    view.reset(sf::FloatRect(0, 0, size/zoom, size/zoom ));
+    grid.setView(view);
+  }else{
+    view.reset(sf::FloatRect(viewx, viewy, size/zoom, size/zoom ));
+    grid.setView(view);
+  }
 }
 
 void Automata::pollEvent(){

@@ -8,7 +8,26 @@
 #include <random>
 #include <utility>
 
+class Cell{
+public:
+  Cell();
+  void CellInit(float,float);
+  float x,y;
+  bool state;
+  sf::Color color;
+  void setPosition();
+private:
+};
 
+
+
+Cell::Cell(){
+}
+
+void Cell::CellInit(float x,float y){
+  this->x=x;
+  this->y=y;
+}
 
 class Automata{
 public:
@@ -22,7 +41,7 @@ private:
   double p;
   std::map<unsigned int, int> colorMap;
   sf::RenderWindow grid;
-  std::vector<sf::RectangleShape> cells;
+  std::vector<Cell> cells;
   std::vector<std::pair<sf::Color,int>> totalPher;
   std::vector<std::pair<sf::Sprite,sf::Color>> ants;
   sf::View view;
