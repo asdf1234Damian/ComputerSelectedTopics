@@ -3,14 +3,18 @@ from  tkinter  import *
 import threading, os, errno, shlex
 from subprocess import Popen, PIPE
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 import csv
 import numpy as np
 import random as rng
 from tkinter.colorchooser import *
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
-class UI:
+class UI():
     def __init__(self):
+        self.x=[]
+        self.y=[]
         self.tk=Tk()
         self.tk.title("Automata")
         self.tk.geometry("200x1900+0+100")
@@ -27,21 +31,15 @@ class UI:
         self.sizeLbl=Label(self.tk,text="Probability")
         self.sizeLbl.pack(side=TOP, padx=10, pady=(10,5))
         self.probIn=Entry(self.tk,width=10,justify="center")
-        self.probIn.insert(END,"10")
+        self.probIn.insert(END,"20")
         self.probIn.pack(side=TOP, padx=10, pady=10)
-        """
-        self.pTypes={'Normal'}
-        self.pSel=StringVar(self.tk)
-        self.pSel.set('Normal')
-        self.probType=OptionMenu(self.tk, self.pSel,*self.pTypes)
-        self.probType.pack(side=TOP, padx=10, pady=10)
-        """
+
 
         #Rule
         self.ruleLbl=Label(self.tk,text="Rule")
         self.ruleLbl.pack(side=TOP, padx=10, pady=(10,5))
         self.ruleIn=Entry(self.tk,width=10,justify="center")
-        self.ruleIn.insert(END,"2,3,3,3")
+        self.ruleIn.insert(END,"2,7,4,6")
         self.ruleIn.pack(side=TOP, padx=10, pady=(10,5))
 
 
@@ -57,6 +55,12 @@ class UI:
         self.colorPickb=Button(text='Dead Color', command=self.getColorb)
         self.colorPickb.pack(side=TOP, padx=10, pady=10)
 
+        self.fig = plt.figure()
+        self.plot = self.fig.add_subplot(1, 1, 1)
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self.tk)
+        self.canvas.draw()
+        self.canvas.get_tk_widget().pack(side=TOP, padx=20, pady=20)
+
         #Instructions
         self.instructLbl=Label(self.tk,text="WASD: for moving the camera\n\n Up/Down: Zoom +/-\n\n Left: Run/Stop\n\n Right: Setp")
         self.instructLbl.pack(side=TOP, padx=10, pady=10)
@@ -71,9 +75,12 @@ class UI:
         us=rule[1]
         lb=rule[2]
         ub=rule[3]
-        automat=Popen(["source/./Automata",self.sizeIn.get(),pNorm,str(int(self.colora[0][0])),str(int(self.colora[0][1])),str(int(self.colora[0][2])),str(int(self.colorb[0][0])),str(int(self.colorb[0][1])), str(int(self.colorb[0][2])),ls,us,lb,ub])
-        automat.wait()
-        self.plot()
+        automat=Popen(["source/./Automata",self.sizeIn.get(),pNorm,str(int(self.colora[0][0])),str(int(self.colora[0][1])),str(int(self.colora[0][2])),str(int(self.colorb[0][0])),str(int(self.colorb[0][1])), str(int(self.colorb[0][2])),ls,us,lb,ub], stdout=PIPE, bufsize=1)
+        with automat.stdout:
+            for line in iter(automat.stdout.readline,b''):
+                self.x.append(int(line.decode('utf-8').split(',')[0]))
+                self.y.append(int(line.decode('utf-8').split(',')[1]))
+                self.pltG()
 
     def getColora(self):
         self.colora = askcolor()
@@ -83,28 +90,17 @@ class UI:
         self.colorb = askcolor()
         self.colorPickb.configure(bg = self.colorb[1])
 
-    def plot(self):
-        x = []
-        y = []
-        with open('gens','r') as csvfile:
-            plots = csv.reader(csvfile, delimiter=',')
-            for row in plots:
-                x.append(int(row[0]))
-                y.append(int(row[1]))
-        m=100*np.mean(y)/(int(self.sizeIn.get())* int(self.sizeIn.get()))
-        n=np.mean(y)
-        y_mean = [n]*len(x)
-        mean_line = plt.plot(x,y_mean, label='Mean: '+str(round(m,2))+'%', linestyle='--')
+    def plt(self):
+        m=100*np.mean(self.y)/(int(self.sizeIn.get())* int(self.sizeIn.get()))
+        n=np.mean(self.y)
+        y_mean = [n]*len(self.x)
+        mean_line = self.canvas.plot(self.x,y_mean, label='Mean: '+str(round(m,2))+'%', linestyle='--')
         if self.colora[1]=='#ffffff':
-            plt.scatter(x,y,c=self.colorb[1], label='Living Cells')
+            self.canvas.scatter(self.x,self.y,c=self.colorb[1], label='Living Cells')
         else:
-            plt.scatter(x,y,c=self.colora[1], label='Living Cells')
-        plt.xlabel('Gen')
-        plt.ylabel('Alive')
-        plt.title('Size'+self.sizeIn.get()+'x'+self.sizeIn.get()+'\n')
-        plt.legend()
-        plt.show()
-
+            self.canvas.scatter(self.x,self.y,c=self.colora[1], label='Living Cells')
+        self.canvas.xlabel('Gen')
+        self.canvas.ylabel('Alive')
 
 Life = UI()
 Life.start()

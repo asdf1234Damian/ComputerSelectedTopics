@@ -7,7 +7,7 @@ sf::Vertex v;
 float treshhold=300;
 float cellsize=.6;
 void Automata::printGens(){
-  for (auto elem: colorMap)  {
+  for (auto elem: colorMap){
     std::cout << gen <<',' << (unsigned) sf::Color(elem.first).r <<','<< (unsigned) sf::Color(elem.first).g <<','<< (unsigned) sf::Color(elem.first).b <<','<< elem.second<< '\n';
   }
 }
