@@ -61,6 +61,7 @@ int main(int argc, char const *argv[]) {
 //Generates the array of size 'size*size' with 'i' 1s in it
 std::string perm;
 bool isFinal=true;
+std::cout << "#!/usr/bin/wolframscript -cloud -print -format PDF\n";
 std::cout << "Graph[{";
   for (size_t i = 0; i <=  size*size; i++) {
     perm="";
@@ -73,7 +74,7 @@ std::cout << "Graph[{";
     //Print all permutations of the current string
     //along with the next state
     do{
-      std::cout << perm << " \\[UndirectedEdge] " <<  nextState(perm);
+      std::cout << perm << " \\[DirectedEdge] " <<  nextState(perm);
       isFinal=std::next_permutation(perm.begin(),perm.end());
       if (isFinal){
         std::cout << ", ";
@@ -83,5 +84,5 @@ std::cout << "Graph[{";
       std::cout << ", ";
     }
   }
-std::cout << "}, VertexStyle -> Red]" << '\n';
+std::cout << "}, VertexStyle -> Red, GraphLayout -> \"RadialEmbedding\"]" << '\n';
 }

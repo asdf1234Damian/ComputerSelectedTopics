@@ -61,7 +61,8 @@ int main(int argc, char const *argv[]) {
 //Generates the array of size 'size*size' with 'i' 1s in it
 std::string perm;
 bool changed,isFinal=true;
-std::cout << "Graph[{";
+std::cout << "#!/usr/bin/wolframscript -cloud -print -format PNG\n";
+std::cout << "GraphPlot[{";
   for (size_t i = 0; i <=  size*size; i++) {
     perm="";
     for (size_t j = 0; j <  size*size-i; j++) {
@@ -75,7 +76,7 @@ std::cout << "Graph[{";
     do{
       if (perm!=nextState(perm)) {
         changed=true;
-        std::cout << perm << " \\[UndirectedEdge] " <<  nextState(perm);
+        std::cout << perm << " \\[DirectedEdge] " <<  nextState(perm);
       }else{
         changed=false;
       }
