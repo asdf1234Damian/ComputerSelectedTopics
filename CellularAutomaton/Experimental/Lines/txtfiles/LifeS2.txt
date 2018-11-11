@@ -1,5 +1,0 @@
-\item 0000
-\item 0011
-\item 0101
-\item 1010
-\item 1100

@@ -17,18 +17,32 @@ class UI:
 
         #Grid size input
         self.sizeLbl=Label(self.tk,text="Size of the grid")
-        self.sizeLbl.pack(side=TOP, padx=10, pady=(200,5))
+        self.sizeLbl.pack(side=TOP, padx=10, pady=(100,5))
         self.sizeIn=Entry(self.tk,width=10,justify="center")
         self.sizeIn.insert(END,"40")
         self.sizeIn.pack(side=TOP, padx=10, pady=10)
 
 
         #Probability
-        self.sizeLbl=Label(self.tk,text="Probability")
-        self.sizeLbl.pack(side=TOP, padx=10, pady=(10,5))
+        self.lProba=Label(self.tk,text="Probability")
+        self.lPTotal=Label(self.tk,text="Total")
+        self.lProba.pack(side=TOP, padx=10, pady=(10,5))
+        self.lPTotal.pack(side=TOP, padx=10, pady=(10,5))
         self.probIn=Entry(self.tk,width=10,justify="center")
-        self.probIn.insert(END,"0.1")
+        self.probIn.insert(END,"1")
         self.probIn.pack(side=TOP, padx=10, pady=10)
+
+        self.lpArmy=Label(self.tk,text="Army of total")
+        self.lpArmy.pack(side=TOP, padx=10, pady=(10,5))
+        self.probA=Entry(self.tk,width=10,justify="center")
+        self.probA.insert(END,"8")
+        self.probA.pack(side=TOP, padx=10, pady=10)
+
+        self.sizeLbl=Label(self.tk,text="Queens of total")
+        self.sizeLbl.pack(side=TOP, padx=10, pady=(10,5))
+        self.probQ=Entry(self.tk,width=10,justify="center")
+        self.probQ.insert(END,"2")
+        self.probQ.pack(side=TOP, padx=10, pady=10)
 
 
         #Start
@@ -40,7 +54,7 @@ class UI:
         self.startCBttn.pack(side=TOP, padx=10, pady=10)
 
         #StartQueen
-        self.startQBttn= Button(self.tk, text="Queens",state="active", command=self.runCol)
+        self.startQBttn= Button(self.tk, text="Queens",state="active", command=self.runQueen)
         self.startQBttn.pack(side=TOP, padx=10, pady=10)
 
         #Colors
@@ -70,6 +84,16 @@ class UI:
         automat.wait()
         self.plot()
 
+
+    def runQueen(self):
+        pNorm="{:.5f}".format(st.norm.ppf(float(self.probIn.get())/100))
+        pqNorm="{:.5f}".format(st.norm.ppf(float(self.probQ.get())/100))
+        paNorm="{:.5f}".format(st.norm.ppf(float(self.probA.get())/100))
+        automat=Popen(["source/./AutomataQueens",self.sizeIn.get(),pNorm,str(int(self.colora[0][0])),str(int(self.colora[0][1])),str(int(self.colora[0][2])),str(int(self.colorb[0][0])),str(int(self.colorb[0][1])), str(int(self.colorb[0][2])),'0',paNorm,pqNorm])
+        automat.wait()
+        self.plot()
+
+
     def getColora(self):
         self.colora = askcolor()
         self.colorPicka.configure(bg = self.colora[1])
@@ -86,22 +110,22 @@ class UI:
         y = []
         currentCX=[]
         currentCY=[]
-
         with open('gens','r') as csvfile:
             plots = csv.reader(csvfile, delimiter=',')
             for row in plots:
                 x.append(int(row[0]))
                 c.add(tuple((float(row[1])/250,float(row[2])/250,float(row[3])/250,float(1.0/2))))
                 y.append(int(row[4]))
-
-
-        for i in range(list(len(c))):
+        for i in range(len(list(c))):
             currentCX=[]
             currentCY=[]
             for j in range(i,len(x),len(c)):
                 currentCX.append(x[j])
                 currentCY.append(y[j])
-            plt.plot(currentCX,currentCY,color=list(c)[i],label=str('hormiga'+str(i)))
+            if(list(c)[i]!=(1.0,1.0,1.0,0.5)):
+                plt.plot(currentCX,currentCY,color=list(c)[i],label=str('hormiga'+str(i)))
+            else:
+                plt.plot(currentCX,currentCY,color='black',label=str('hormiga'+str(i)))
         plt.xlabel('Gen')
         plt.ylabel('Pheromones')
         plt.title('Size'+self.sizeIn.get()+'x'+self.sizeIn.get()+'\n')
