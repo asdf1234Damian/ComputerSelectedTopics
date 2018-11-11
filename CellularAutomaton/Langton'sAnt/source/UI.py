@@ -86,16 +86,13 @@ class UI:
         y = []
         currentCX=[]
         currentCY=[]
-
         with open('gens','r') as csvfile:
             plots = csv.reader(csvfile, delimiter=',')
             for row in plots:
                 x.append(int(row[0]))
                 c.add(tuple((float(row[1])/250,float(row[2])/250,float(row[3])/250,float(1.0/2))))
                 y.append(int(row[4]))
-
-
-        for i in range(list(len(c))):
+        for i in range(len(list(c))):
             currentCX=[]
             currentCY=[]
             for j in range(i,len(x),len(c)):

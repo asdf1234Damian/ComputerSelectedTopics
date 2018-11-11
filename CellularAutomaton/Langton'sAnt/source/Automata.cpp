@@ -26,16 +26,17 @@ Automata::Automata(unsigned int size, double p,short int cr1,short int cr2,short
   this->workerDown.loadFromFile("images/workerD.png");
   this->workerLeft.loadFromFile("images/workerL.png");
 
-  /*this->queenUp.loadFromFile("images/03.png");
-  this->queenRight.loadFromFile("images/02.png");
-  this->queenDown.loadFromFile("images/01.png");
-  this->queenLeft.loadFromFile("images/04.png");
 
-  this->repUp.loadFromFile("images/03.png");
-  this->repRight.loadFromFile("images/02.png");
-  this->repDown.loadFromFile("images/01.png");
-  this->repLeft.loadFromFile("images/04.png");
-  */
+  this->queenUp.loadFromFile("images/queenU.png");
+  this->queenRight.loadFromFile("images/queenR.png");
+  this->queenDown.loadFromFile("images/queenD.png");
+  this->queenLeft.loadFromFile("images/queenL.png");
+
+  this->repUp.loadFromFile("images/armyU.png");
+  this->repRight.loadFromFile("images/armyR.png");
+  this->repDown.loadFromFile("images/armyD.png");
+  this->repLeft.loadFromFile("images/armyL.png");
+
   grid.setFramerateLimit(30);
   grid.setView(view);
 }
@@ -250,7 +251,7 @@ void Automata::run(){
             v= sf::Vertex({cells[i].x,cells[i].y},cells[i].color);
             grid.draw(&v,1,sf::Points);
         }
-        
+
       }
     }
     for (size_t i = 0; i < ants.size(); i++) {
