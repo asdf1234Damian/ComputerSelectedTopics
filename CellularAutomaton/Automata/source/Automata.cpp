@@ -101,15 +101,6 @@ void Automata::setCell(float x, float y){
 }
 
 //Main Loop///////////////////////////////////////////////////////
-void drawVertex(){
-
-}
-
-void drawrect(){
-
-}
-
-
 void Automata::run(){
   randomStart();
   while (grid.isOpen()) {
