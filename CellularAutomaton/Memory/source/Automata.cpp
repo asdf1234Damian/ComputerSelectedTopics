@@ -10,7 +10,7 @@ Automata::Automata(unsigned int memory, unsigned int size, double p,short int cr
   for(size_t t = 0; t < memory; t++){
     for (size_t y = 0; y < size; y++){
       for (size_t x = 0; x < size; x++) {
-        Cells[getIndex(x,y,t)].CellInit(false);
+        Cells[getIndex(x,y,t)].setState(false);
       }
     }
   }
@@ -19,8 +19,8 @@ Automata::Automata(unsigned int memory, unsigned int size, double p,short int cr
   this->memory= memory;
   this->size=size;
   this->p=p;
-  this-> alive= sf::Color(cr1,cg1,cb1);
-  this-> dead= sf::Color(cr2,cg2,cb2);
+  this->alive= sf::Color(cr1,cg1,cb1);
+  this->dead= sf::Color(cr2,cg2,cb2);
   this->ls=ls;
   this->us=us;
   this->lb=lb;
@@ -57,7 +57,7 @@ short int Automata::neighSum(float x, float y){
   return(getValue(x-1,y+1)+getValue(x-1,y)+getValue(x-1,y-1)+getValue(x,y+1)+getValue(x,y-1)+getValue(x+1,y+1)+getValue(x+1,y)+getValue(x+1,y-1));
 }
 
-bool Automata::rule(float x, float y){
+bool Automata::mainRule(float x, float y){
     if (getValue(x,y)==1&&neighSum(x,y)>=ls&&neighSum(x,y)<=us) {
       return true;//survives
     }else if(getValue(x,y)==0&&neighSum(x,y)>=lb&&neighSum(x,y)<=ub){
@@ -67,12 +67,47 @@ bool Automata::rule(float x, float y){
     }
 }
 
+bool Automata::minRule(float x, float y){
+  for (size_t t = 0; t < current; t++) {
+    if (!Cells[getIndex(x,y,t)].state) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool Automata::maxRule(float x, float y){
+  for (size_t t = 0; t < current; t++) {
+    if (Cells[getIndex(x,y,t)].state) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool Automata::parityRule(float x, float y){
+  bool result = Cells[getIndex(x,y,0)].state;
+  for (size_t t = 1; t < current; t++) {
+      result ^= Cells[getIndex(x,y,t)].state;
+  }
+  return !result;
+}
+
 void Automata::setCell(float x, float y){
-  if (rule(x,y)) {
-    total++;
-    Cells[getIndex(x,y,next)].state=true;//white
-  }else{
-    Cells[getIndex(x,y,next)].state=false;//black
+  if (next==0){
+    if (parityRule(x,y)) {
+      total++;
+      Cells[getIndex(x,y,next)].state=true;//white
+    }else{
+      Cells[getIndex(x,y,next)].state=false;//black
+    }
+  } else {
+    if (mainRule(x,y)) {
+      total++;
+      Cells[getIndex(x,y,next)].state=true;//white
+    }else{
+      Cells[getIndex(x,y,next)].state=false;//black
+    }
   }
 }
 
@@ -114,7 +149,7 @@ void Automata::randomStart(){
       for (size_t x = 0; x < size; x++){
       if (distribution(generator)<p) {
         total++;
-        Cells[getIndex(x,y,current)].CellInit(true);
+        Cells[getIndex(x,y,current)].setState(true);
       }
     }
   }
@@ -219,6 +254,5 @@ int main(int argc, char const *argv[]) {
   short int cr1=strtoul(argv[4], NULL,10),cg1=strtoul(argv[5], NULL,10),cb1=strtoul(argv[6], NULL,10),cr2=strtoul(argv[7], NULL,10),cg2=strtoul(argv[8], NULL,10),cb2=strtoul(argv[9], NULL,10),ls=strtoul(argv[10], NULL,10),us=strtoul(argv[11], NULL,10),lb=strtoul(argv[12], NULL,10),ub=strtoul(argv[13], NULL,10);
   Automata GOL(memory,size,p,cr1,cr2,cg1,cg2,cb1,cb2,ls,us,lb,ub);
   GOL.run();
-  getchar();
   return 0;
 }
