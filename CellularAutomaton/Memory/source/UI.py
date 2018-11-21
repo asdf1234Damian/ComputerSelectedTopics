@@ -1,5 +1,5 @@
 import scipy.stats as st
-from  tkinter  import Tk,Label,TOP,Entry,END,Button
+from  tkinter  import Tk,Label,TOP,Entry,END,Button,ttk
 import threading, os, errno, shlex
 from subprocess import Popen, PIPE
 import matplotlib.pyplot as plt
@@ -21,6 +21,7 @@ class UI:
         self.sizeIn=Entry(self.tk,width=10,justify="center")
         self.sizeIn.insert(END,"400")
         self.sizeIn.pack(side=TOP, padx=10, pady=10)
+
         #Memory input
         self.memoLbl=Label(self.tk,text="Memory")
         self.memoLbl.pack(side=TOP, padx=10, pady=(20,5))
@@ -28,20 +29,13 @@ class UI:
         self.memoIn.insert(END,"4")
         self.memoIn.pack(side=TOP, padx=10, pady=10)
 
-
         #Probability
         self.sizeLbl=Label(self.tk,text="Probability")
         self.sizeLbl.pack(side=TOP, padx=10, pady=(10,5))
         self.probIn=Entry(self.tk,width=10,justify="center")
         self.probIn.insert(END,"10")
         self.probIn.pack(side=TOP, padx=10, pady=10)
-        """
-        self.pTypes={'Normal'}
-        self.pSel=StringVar(self.tk)
-        self.pSel.set('Normal')
-        self.probType=OptionMenu(self.tk, self.pSel,*self.pTypes)
-        self.probType.pack(side=TOP, padx=10, pady=10)
-        """
+
 
         #Rule
         self.ruleLbl=Label(self.tk,text="Rule")
@@ -50,6 +44,11 @@ class UI:
         self.ruleIn.insert(END,"2,3,3,3")
         self.ruleIn.pack(side=TOP, padx=10, pady=(10,5))
 
+        #Secundary Rule
+        self.secRCombo=ttk.Combobox(self.tk,width=15)
+        self.secRCombo['values']=("Min","Max","Parity")
+        self.secRCombo.pack(side=TOP, padx=10, pady=(10,5))
+        self.secRCombo.set("Min")
 
         #Start
         self.startBttn= Button(self.tk, text="Run",state="active", command=self.run)
@@ -70,14 +69,23 @@ class UI:
     def start(self):
         self.tk.mainloop()
 
+    def switch (self,case):
+        return{
+            "Min":"0",
+            "Max":"1",
+            "Parity":"2",
+        }[case]
+
+
     def run(self):
+        srule=self.switch(self.secRCombo.get())
         pNorm="{:.5f}".format(st.norm.ppf(float(self.probIn.get())/100))
         rule=self.ruleIn.get().split(',')
         ls=rule[0]
         us=rule[1]
         lb=rule[2]
         ub=rule[3]
-        automat=Popen(["source/./Automata",self.memoIn.get(),self.sizeIn.get(),pNorm,str(int(self.colora[0][0])),str(int(self.colora[0][1])),str(int(self.colora[0][2])),str(int(self.colorb[0][0])),str(int(self.colorb[0][1])), str(int(self.colorb[0][2])),ls,us,lb,ub])
+        automat=Popen(["source/./Automata",self.memoIn.get(),self.sizeIn.get(),pNorm,str(int(self.colora[0][0])),str(int(self.colora[0][1])),str(int(self.colora[0][2])),str(int(self.colorb[0][0])),str(int(self.colorb[0][1])), str(int(self.colorb[0][2])),ls,us,lb,ub,srule])
         automat.wait()
         self.plot()
 

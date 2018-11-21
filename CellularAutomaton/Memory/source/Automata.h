@@ -5,6 +5,7 @@
 #include <fstream>
 #include <chrono>
 #include <random>
+#include <functional>
 
 class Cell{
 public:
@@ -23,7 +24,7 @@ void Cell::setState( bool b){
 
 class Automata{
 public:
-  Automata(unsigned int, unsigned int,double,short int,short int,short int,short int,short int,short int,short int, short int, short int, short int);
+  Automata(unsigned int, unsigned int,double,short int,short int,short int,short int,short int,short int,short int, short int, short int, short int,short int);
   void run();
 private:
   sf::Color alive= sf::Color(250, 250,250);
@@ -41,6 +42,7 @@ private:
   bool running=false;
   bool state=true;//True sets current state to A,false to B
   std::vector<Cell> Cells;
+  std::_Mem_fn<bool(Automata::*)(float,float)> secundaryfn;
   void pollEvent();
   short int getValue(float, float);
   short int neighSum(float, float);

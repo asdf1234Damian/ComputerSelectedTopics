@@ -6,7 +6,7 @@ sf::Vertex v;
 float cellsize=.6;
 float treshhold=100;
 int index;
-Automata::Automata(unsigned int memory, unsigned int size, double p,short int cr1,short int cr2,short int cg1,short int cg2,short int cb1,short int cb2,short int ls, short int us, short int lb, short int ub):grid({1000,1000},"Game of life"),Cells(size*size*memory){
+Automata::Automata(unsigned int memory, unsigned int size, double p,short int cr1,short int cr2,short int cg1,short int cg2,short int cb1,short int cb2,short int ls, short int us, short int lb, short int ub, short int ruleMode):grid({1000,1000},"Game of life"),Cells(size*size*memory),secundaryfn(&Automata::minRule){
   for(size_t t = 0; t < memory; t++){
     for (size_t y = 0; y < size; y++){
       for (size_t x = 0; x < size; x++) {
@@ -29,6 +29,23 @@ Automata::Automata(unsigned int memory, unsigned int size, double p,short int cr
   grid.setView(view);
   this->current=0;
   this->next=1;
+
+  switch (ruleMode) {
+    case 0:
+     secundaryfn = std::mem_fn(&Automata::minRule);
+    break;
+
+    case 1:
+      secundaryfn = std::mem_fn(&Automata::maxRule);
+    break;
+
+    case 2:
+      secundaryfn = std::mem_fn(&Automata::parityRule);
+    break;
+
+    default:
+    break;
+  }
 }
 //Cell Functions//////////////////////////////////////////////////
 void Automata::flipCell(int x, int y){
@@ -95,7 +112,7 @@ bool Automata::parityRule(float x, float y){
 
 void Automata::setCell(float x, float y){
   if (next==0){
-    if (parityRule(x,y)) {
+    if (secundaryfn(this,x,y)) {
       total++;
       Cells[getIndex(x,y,next)].state=true;//white
     }else{
@@ -160,7 +177,7 @@ void Automata::randomStart(){
 void Automata::update(){
   for (size_t x = 0; x < size; x++){
     for (size_t y = 0; y < size; y++) {
-      setCell(x,y);
+      setCell(x,y);//TODO
     }
   }
   gen++;
@@ -251,8 +268,8 @@ int main(int argc, char const *argv[]) {
   unsigned int memory=strtoul(argv[1], NULL,10);
   unsigned int size=strtoul(argv[2], NULL,10);
   double   p=strtod(argv[3], NULL);
-  short int cr1=strtoul(argv[4], NULL,10),cg1=strtoul(argv[5], NULL,10),cb1=strtoul(argv[6], NULL,10),cr2=strtoul(argv[7], NULL,10),cg2=strtoul(argv[8], NULL,10),cb2=strtoul(argv[9], NULL,10),ls=strtoul(argv[10], NULL,10),us=strtoul(argv[11], NULL,10),lb=strtoul(argv[12], NULL,10),ub=strtoul(argv[13], NULL,10);
-  Automata GOL(memory,size,p,cr1,cr2,cg1,cg2,cb1,cb2,ls,us,lb,ub);
+  short int cr1=strtoul(argv[4], NULL,10),cg1=strtoul(argv[5], NULL,10),cb1=strtoul(argv[6], NULL,10),cr2=strtoul(argv[7], NULL,10),cg2=strtoul(argv[8], NULL,10),cb2=strtoul(argv[9], NULL,10),ls=strtoul(argv[10], NULL,10),us=strtoul(argv[11], NULL,10),lb=strtoul(argv[12], NULL,10),ub=strtoul(argv[13], NULL,10),srule=strtoul(argv[14], NULL,10);
+  Automata GOL(memory,size,p,cr1,cr2,cg1,cg2,cb1,cb2,ls,us,lb,ub,srule);
   GOL.run();
   return 0;
 }
