@@ -128,34 +128,42 @@ void Automata::setCell(float x, float y){
   }
 }
 
+void Automata::plot(){
+  grid.clear(dead);
+  if (size/zoom<=treshhold) {
+    for (size_t y = 0; y < size; y++) {
+      for (size_t x = 0; x < size; x++) {
+        index = getIndex(x,y,current);
+        if (Cells[index].state) {
+          r.setPosition({(float)x,(float)y});
+          r.setSize({(float)cellsize,(float)cellsize});
+          r.setFillColor(alive);
+          grid.draw(r);
+        }
+      }
+    }
+  } else {
+    for (size_t y = 0; y < size; y++) {
+      for (size_t x = 0; x < size; x++) {
+        index = getIndex(x,y,current);
+        if (Cells[index].state) {
+          v= sf::Vertex({(float)x,(float)y},alive);
+          grid.draw(&v,1,sf::Points);
+        }
+      }
+    }
+  }
+}
+
 //Main Loop///////////////////////////////////////////////////////
 void Automata::run(){
   randomStart();
   while (grid.isOpen()) {
-    grid.clear(dead);
-      if (size/zoom<=treshhold) {
-        for (size_t y = 0; y < size; y++) {
-          for (size_t x = 0; x < size; x++) {
-            index = getIndex(x,y,current);
-            if (Cells[index].state) {
-              r.setPosition({(float)x,(float)y});
-              r.setSize({(float)cellsize,(float)cellsize});
-              r.setFillColor(alive);
-              grid.draw(r);
-            }
-          }
-        }
-      } else {
-        for (size_t y = 0; y < size; y++) {
-          for (size_t x = 0; x < size; x++) {
-            index = getIndex(x,y,current);
-            if (Cells[index].state) {
-              v= sf::Vertex({(float)x,(float)y},alive);
-              grid.draw(&v,1,sf::Points);
-            }
-          }
-        }
-      }
+    if (state && current!=0) {
+      plot();
+    }else if (!state && current==0){
+      plot();
+    }
     grid.display();
     pollEvent();
   }
@@ -254,6 +262,9 @@ void Automata::pollEvent(){
         running = !running;
         break;
 
+        case sf::Keyboard::Space:
+        state=!state;
+        break;
         default:
         break;
       }
@@ -268,7 +279,7 @@ int main(int argc, char const *argv[]) {
   unsigned int memory=strtoul(argv[1], NULL,10);
   unsigned int size=strtoul(argv[2], NULL,10);
   double   p=strtod(argv[3], NULL);
-  short int cr1=strtoul(argv[4], NULL,10),cg1=strtoul(argv[5], NULL,10),cb1=strtoul(argv[6], NULL,10),cr2=strtoul(argv[7], NULL,10),cg2=strtoul(argv[8], NULL,10),cb2=strtoul(argv[9], NULL,10),ls=strtoul(argv[10], NULL,10),us=strtoul(argv[11], NULL,10),lb=strtoul(argv[12], NULL,10),ub=strtoul(argv[13], NULL,10),srule=strtoul(argv[14], NULL,10);
+  short int cr1=strtoul(argv[4], NULL,10),cg1=strtoul(argv[5], NULL,10),cb1=strtoul(argv[6], NULL,10),cr2=strtoul(argv[7], NULL,10),cg2=strtoul(argv[8], NULL,10),cb2=strtoul(argv[9], NULL,10),ls=strtoul(argv[10], NULL,10),us=strtoul(argv[11], NULL,10),lb=strtoul(argv[12], NULL,10),ub=strtoul(argv[13], NULL,10),srule =  strtoul(argv[14], NULL,10);
   Automata GOL(memory,size,p,cr1,cr2,cg1,cg2,cb1,cb2,ls,us,lb,ub,srule);
   GOL.run();
   return 0;

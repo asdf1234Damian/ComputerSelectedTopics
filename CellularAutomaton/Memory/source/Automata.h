@@ -40,7 +40,7 @@ private:
   sf::RenderWindow grid;
   sf::View view;
   bool running=false;
-  bool state=true;//True sets current state to A,false to B
+  bool state=true;// Mem or composite function
   std::vector<Cell> Cells;
   std::_Mem_fn<bool(Automata::*)(float,float)> secundaryfn;
   void pollEvent();
