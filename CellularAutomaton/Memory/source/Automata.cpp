@@ -189,8 +189,10 @@ void Automata::update(){
     }
   }
   gen++;
-  std::cout <<gen<<", "<<total<< '\n';
-  total=0;
+  if (current==0) {
+    std::cout <<gen<<", "<<total<< '\n';
+    total=0;
+  }
   current=next;
   next=(current+1)%memory;
 }
