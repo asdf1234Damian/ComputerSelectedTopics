@@ -1,88 +1,209 @@
-#include <iostream>
-#include <string>
 #include <algorithm>
-
-unsigned int size;//Size of the array
-short us,ls,ub,lb;//Parameter for the rule
-
-//Auxiliar function for getting the 2d position in the 1d
-int getIndex(int x, int y){
-  return y*size+x;
+#include <cmath>
+#include <iostream>
+#include <set>
+#include <string>
+#include <vector>
+//18:27
+unsigned int size;    // Size of the array
+short us, ls, ub, lb; // Parameter for the rule
+class Graph {
+public:
+  std::vector<std::string> nodes;
+  std::vector<std::pair<std::string, std::string>> edges;
+  Graph(std::string a, std::string b);
+  bool belongs(std::string s);
+  void addEdge(std::string a, std::string b);
+  void print();
+  bool merge(Graph g);
+};
+bool Graph::merge(Graph g) {
+  for (size_t i = 0; i < nodes.size(); i++) {
+    if (g.belongs(nodes.at(i))) {
+      for (size_t j = 0; j < g.edges.size(); j++) {
+        auto a = g.edges.at(j).first;
+        auto b = g.edges.at(j).second;
+        this->addEdge(a, b);
+      }
+      return true;
+    }
+  }
+  return false;
 }
-//Auxiliar fucntion for toroid structure of the grid
-int getVal(std::string perm, int x, int y){
-  if (x<0) {x=size-1;}else if (x>=(int)size) {x=0;}
-  if (y<0) {y=size-1;}else if (y>=(int)size) {y=0;}
-  if (perm[getIndex(x,y)]=='1') {
+// Function to print all the edges of the Graph
+void Graph::print() {
+  std::cout << "No. Nodes: " << nodes.size() << '\n';
+  std::cout << "No. Edges: " << edges.size() << '\n';
+  for (size_t i = 0; i < edges.size(); i++) {
+    std::cout << edges.at(i).first + ", " + edges.at(i).second << '\n';
+  }
+}
+// No graph is created without at least an edge
+Graph::Graph(std::string a, std::string b) { addEdge(a, b); }
+// See if a given node is in the graph or vector
+bool Graph::belongs(std::string s) {
+  int l = 0, r = nodes.size() - 1;
+  while (l <= r) {
+    unsigned m = l + (r - l) / 2;
+    if (nodes[m] == s)
+      return true;
+    if (nodes[m] < s)
+      l = m + 1;
+    else
+      r = m - 1;
+  }
+  return false;
+}
+bool belongs(std::vector<std::string> v, std::string s) {
+  int l = 0, r = v.size() - 1;
+  while (l <= r) {
+    unsigned m = l + (r - l) / 2;
+    if (v[m] == s)
+      return true;
+    if (v[m] < s)
+      l = m + 1;
+    else
+      r = m - 1;
+  }
+  return false;
+}
+bool belongs(std::vector<std::pair<unsigned, unsigned>> v, std::pair<unsigned, unsigned> p) {
+  for (size_t i = 0; i < v.size(); i++) {
+    if (v.at(i) == p) {
+      return true;
+    }
+  }
+  return false;
+}
+// Adds an edge and and its nodes to the graph
+void Graph::addEdge(std::string a, std::string b) {
+  if (!this->belongs(a)) {
+    this->nodes.push_back(a);
+  }
+  if (!this->belongs(b)) {
+    this->nodes.push_back(b);
+  }
+  std::sort(nodes.begin(), nodes.end());
+  this->edges.push_back(std::pair<std::string, std::string>(a, b));
+}
+// Auxiliar function for getting the 2d position in the 1d
+int getIndex(int x, int y) { return y * size + x; }
+// Auxiliar fucntion for toroid structure of the grid
+int getVal(std::string perm, int x, int y) {
+  if (x < 0) {
+    x = size - 1;
+  } else if (x >= (int)size) {
+    x = 0;
+  }
+  if (y < 0) {
+    y = size - 1;
+  } else if (y >= (int)size) {
+    y = 0;
+  }
+  if (perm[getIndex(x, y)] == '1') {
     return 1;
   }
   return 0;
 }
-
-//Gets the sum of the Moove Neightborhood
-int neighSum(std::string perm, int x, int y){
-  return(getVal(perm,x-1,y+1)+getVal(perm,x-1,y)+getVal(perm,x-1,y-1)+getVal(perm,x,y+1)+getVal(perm,x,y-1)+getVal(perm,x+1,y+1)+getVal(perm,x+1,y)+getVal(perm,x+1,y-1));
+// Gets the sum of the Moove Neightborhood
+int neighSum(std::string perm, int x, int y) {
+  return (getVal(perm, x - 1, y + 1) + getVal(perm, x - 1, y) +
+          getVal(perm, x - 1, y - 1) + getVal(perm, x, y + 1) +
+          getVal(perm, x, y - 1) + getVal(perm, x + 1, y + 1) +
+          getVal(perm, x + 1, y) + getVal(perm, x + 1, y - 1));
 }
-
-//Compares neighSum value with the ones in the rule
-bool rule(short int x, short int y, std::string perm){
-  if (getVal(perm,x,y)&&neighSum(perm, x, y)>=ls&&neighSum(perm, x, y)<=us) {
-      return true;
-  }else if (!getVal(perm,x,y)&&neighSum(perm, x, y)>=lb&&neighSum(perm, x, y)<=ub) {
-      return true;
-  }else{
+// Compares neighSum value with the ones in the rule
+bool rule(short int x, short int y, std::string perm) {
+  bool alive = getVal(perm, x, y);
+  if (alive && neighSum(perm, x, y) >= ls && neighSum(perm, x, y) <= us) {
+    return true;
+  } else if (!alive && neighSum(perm, x, y) >= lb &&
+             neighSum(perm, x, y) <= ub) {
+    return true;
+  } else {
     return false;
   }
 }
-
-//Returns the String for the next state of the automaton
-std::string nextState(std::string cPerm){
-  std::string nPerm(size*size,'0');
+// Returns the String for the next state of the automaton
+std::string nextState(std::string cPerm) {
+  std::string nPerm(size * size, '0');
   for (size_t y = 0; y < size; y++) {
     for (size_t x = 0; x < size; x++) {
       if (rule(x, y, cPerm)) {
-        nPerm[getIndex(x,y)]='1';
+        nPerm[getIndex(x, y)] = '1';
       }
     }
   }
   return nPerm;
 }
-
-//Main Program
+// Main Program
 int main(int argc, char const *argv[]) {
-  //Get parameters form the terminal
+  // Get parameters form the terminal
   size = (unsigned int)std::stoi(argv[1]);
   ls = std::stoi(argv[2]);
   us = std::stoi(argv[3]);
   lb = std::stoi(argv[4]);
   ub = std::stoi(argv[5]);
-  //Redirects the stdout stream to a the nextState.tmp file
-  //freopen(name.c_str(),"w+",stdout);
-//Generates the array of size 'size*size' with 'i' 1s in it
-std::string perm;
-bool isFinal=true;
-std::cout << "#!/usr/bin/wolframscript -cloud -print -format PDF\n";
-std::cout << "Graph[{";
-  for (size_t i = 0; i <=  size*size; i++) {
-    perm="";
-    for (size_t j = 0; j <  size*size-i; j++) {
+  // Generates the array of size 'size*size' with 'i' 1s in it
+  std::string perm;               // string of current perm
+  std::vector<std::string> perms; // Vector with all the perms
+  // This part of the code is dedicated to create the perms and add them to
+  // pems.
+  for (size_t i = 0; i <= size * size; i++) {
+    perm = "";
+    for (size_t j = 0; j < size * size - i; j++) {
       perm.append("0");
     }
-    for (size_t k = 0; k <i; k++) {
+    for (size_t k = 0; k < i; k++) {
       perm.append("1");
     }
-    //Print all permutations of the current string
-    //along with the next state
-    do{
-      std::cout << perm << " \\[DirectedEdge] " <<  nextState(perm);
-      isFinal=std::next_permutation(perm.begin(),perm.end());
-      if (isFinal){
-        std::cout << ", ";
+    do {
+      perms.push_back(perm);
+    } while (std::next_permutation(perm.begin(), perm.end()));
+  }
+  // Sorts the perms for logic in next part.
+  std::sort(perms.begin(), perms.end());
+  // This part of the code goes through the perms vector and creates the edges,
+  std::vector<Graph> graphs;
+  for (size_t i = 0; i < perms.size(); i++) {
+    std::string current = perms.at(i);
+    std::string next = nextState(current);
+    if (next < current) { // Then its already in a graph.
+      for (size_t j = 0; j < graphs.size(); j++) {
+        if (graphs[j].belongs(next)) {
+          graphs[j].addEdge(current, next);
+        }
       }
-    }while (isFinal);
-    if (i!=size*size){
-      std::cout << ", ";
+    } else { // Needs to be added to a new graph
+      graphs.push_back(Graph(current, next));
     }
   }
-std::cout << "}, VertexStyle -> Red, GraphLayout -> \"RadialEmbedding\"]" << '\n';
+  bool changes;
+  //Merges all grapsh together. Not in the most optimal way
+  do {
+    changes=false;
+    for (size_t i = 0; i < graphs.size() - 1; i++) {
+      for (size_t j = i + 1; j < graphs.size(); j++) {
+        if (graphs.at(i).merge(graphs.at(j))) {
+          graphs.erase(graphs.begin() + j);
+          changes = true;
+        }
+      }
+    }
+  } while (changes);
+  //Prints only thos graphs that are different. Potentially
+  std::cout << "Number of graphs: " << graphs.size() << '\n';
+  int var = 0;
+  std::vector<std::pair<unsigned, unsigned>> variations;
+  for (size_t i = 0; i < graphs.size(); i++) {
+    unsigned n = graphs.at(i).nodes.size();
+    unsigned m = graphs.at(i).edges.size();
+    if (!belongs(variations, std::pair<unsigned, unsigned>(n, m))) {
+      var++;
+      std::cout << "Graph variation number :" << var << '\n';
+      graphs.at(i).print();
+      variations.push_back(std::pair<unsigned, unsigned>(n, m));
+    }
+  }
+  std::cout << "End of program" << '\n';
 }
