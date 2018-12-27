@@ -1,59 +1,8 @@
-#include <algorithm>
-#include <cmath>
-#include <iostream>
-#include <set>
-#include <string>
-#include <vector>
-//18:27
+#include "Graph.hpp"
 unsigned int size;    // Size of the array
 short us, ls, ub, lb; // Parameter for the rule
-class Graph {
-public:
-  std::vector<std::string> nodes;
-  std::vector<std::pair<std::string, std::string>> edges;
-  Graph(std::string a, std::string b);
-  bool belongs(std::string s);
-  void addEdge(std::string a, std::string b);
-  void print();
-  bool merge(Graph g);
-};
-bool Graph::merge(Graph g) {
-  for (size_t i = 0; i < nodes.size(); i++) {
-    if (g.belongs(nodes.at(i))) {
-      for (size_t j = 0; j < g.edges.size(); j++) {
-        auto a = g.edges.at(j).first;
-        auto b = g.edges.at(j).second;
-        this->addEdge(a, b);
-      }
-      return true;
-    }
-  }
-  return false;
-}
-// Function to print all the edges of the Graph
-void Graph::print() {
-  std::cout << "No. Nodes: " << nodes.size() << '\n';
-  std::cout << "No. Edges: " << edges.size() << '\n';
-  for (size_t i = 0; i < edges.size(); i++) {
-    std::cout << edges.at(i).first + ", " + edges.at(i).second << '\n';
-  }
-}
-// No graph is created without at least an edge
-Graph::Graph(std::string a, std::string b) { addEdge(a, b); }
-// See if a given node is in the graph or vector
-bool Graph::belongs(std::string s) {
-  int l = 0, r = nodes.size() - 1;
-  while (l <= r) {
-    unsigned m = l + (r - l) / 2;
-    if (nodes[m] == s)
-      return true;
-    if (nodes[m] < s)
-      l = m + 1;
-    else
-      r = m - 1;
-  }
-  return false;
-}
+
+
 bool belongs(std::vector<std::string> v, std::string s) {
   int l = 0, r = v.size() - 1;
   while (l <= r) {
@@ -67,24 +16,14 @@ bool belongs(std::vector<std::string> v, std::string s) {
   }
   return false;
 }
-bool belongs(std::vector<std::pair<unsigned, unsigned>> v, std::pair<unsigned, unsigned> p) {
+bool belongs(std::vector<std::pair<unsigned, unsigned>> v,
+             std::pair<unsigned, unsigned> p) {
   for (size_t i = 0; i < v.size(); i++) {
     if (v.at(i) == p) {
       return true;
     }
   }
   return false;
-}
-// Adds an edge and and its nodes to the graph
-void Graph::addEdge(std::string a, std::string b) {
-  if (!this->belongs(a)) {
-    this->nodes.push_back(a);
-  }
-  if (!this->belongs(b)) {
-    this->nodes.push_back(b);
-  }
-  std::sort(nodes.begin(), nodes.end());
-  this->edges.push_back(std::pair<std::string, std::string>(a, b));
 }
 // Auxiliar function for getting the 2d position in the 1d
 int getIndex(int x, int y) { return y * size + x; }
@@ -136,6 +75,19 @@ std::string nextState(std::string cPerm) {
   }
   return nPerm;
 }
+// https://stackoverflow.com/questions/5056645/sorting-stdmap-using-value
+template <typename A, typename B>
+std::pair<B, A> flip_pair(const std::pair<A, B> &p) {
+  return std::pair<B, A>(p.second, p.first);
+}
+
+template <typename A, typename B>
+std::multimap<B, A> flip_map(const std::map<A, B> &src) {
+  std::multimap<B, A> dst;
+  std::transform(src.begin(), src.end(), std::inserter(dst, dst.begin()),
+                 flip_pair<A, B>);
+  return dst;
+}
 // Main Program
 int main(int argc, char const *argv[]) {
   // Get parameters form the terminal
@@ -145,10 +97,17 @@ int main(int argc, char const *argv[]) {
   lb = std::stoi(argv[4]);
   ub = std::stoi(argv[5]);
   // Generates the array of size 'size*size' with 'i' 1s in it
-  std::string perm;               // string of current perm
-  std::vector<std::string> perms; // Vector with all the perms
+  std::string perm; // string of current perm
+  std::string next; // string of next perm
+  // Holds all the edges
+  std::vector<std::pair<std::string, std::string>> E;
+  // Holds all the graphs
+  std::vector<Graph> G;
+  // Holds the nodes already added to the graphs vector
+  std::vector<std::string> N;
   // This part of the code is dedicated to create the perms and add them to
   // pems.
+  std::cout << "Creating all edges..." << '\n';
   for (size_t i = 0; i <= size * size; i++) {
     perm = "";
     for (size_t j = 0; j < size * size - i; j++) {
@@ -158,52 +117,70 @@ int main(int argc, char const *argv[]) {
       perm.append("1");
     }
     do {
-      perms.push_back(perm);
+      next = nextState(perm);
+      if (next == perm) {
+        G.push_back(Graph(perm, next));
+        N.push_back(perm);
+      } else {
+        E.push_back(std::make_pair(perm, nextState(perm)));
+        // std::cout <<perm<< ", " <<nextState(perm)<< '\n';
+      }
     } while (std::next_permutation(perm.begin(), perm.end()));
   }
-  // Sorts the perms for logic in next part.
-  std::sort(perms.begin(), perms.end());
-  // This part of the code goes through the perms vector and creates the edges,
-  std::vector<Graph> graphs;
-  for (size_t i = 0; i < perms.size(); i++) {
-    std::string current = perms.at(i);
-    std::string next = nextState(current);
-    if (next < current) { // Then its already in a graph.
-      for (size_t j = 0; j < graphs.size(); j++) {
-        if (graphs[j].belongs(next)) {
-          graphs[j].addEdge(current, next);
-        }
-      }
-    } else { // Needs to be added to a new graph
-      graphs.push_back(Graph(current, next));
-    }
+  std::cout << "Done!" << '\n';
+  std::cout << "Finding hubs..." << '\n';
+  // Holds the nodes with more links
+  std::map<std::string, int> hubs;
+  // Holds all the hubs previous states
+  std::map<std::string, std::vector<std::string>> links;
+  for (size_t i = 0; i < E.size(); i++) {
+    hubs[E.at(i).second]++;
+    links[E.at(i).second].push_back(E.at(i).first);
   }
-  bool changes;
-  //Merges all grapsh together. Not in the most optimal way
+  for (auto i = hubs.begin(); i != hubs.end(); ++i) {
+    std::cout << i->first<<", "<<i->second << '\n';
+  }
+  E.clear();
+  getchar();
+  std::cout << "Sortting by link value" << '\n';
+  std::multimap<int, std::string> sorted = flip_map(hubs);
+  std::cout << "Done!" << '\n';
+  std::cout << "Linking edges..." << '\n';
+  bool sameG;
   do {
-    changes=false;
-    for (size_t i = 0; i < graphs.size() - 1; i++) {
-      for (size_t j = i + 1; j < graphs.size(); j++) {
-        if (graphs.at(i).merge(graphs.at(j))) {
-          graphs.erase(graphs.begin() + j);
-          changes = true;
+    sameG=false;
+    for (auto it = sorted.begin(); it != sorted.end();) {
+      std::string cHub = it->second;
+      if (belongs(N, cHub)) {
+        sameG=true;
+        for (size_t i = 0; i < G.size(); i++) {
+          if (belongs(G.at(i).nodes, cHub)) {
+            std::vector<std::string> origins=links.at(cHub);
+            G.at(i).addEdges(origins, cHub);
+            N.insert(N.end(), origins.begin(),origins.end());
+            std::sort(N.begin(),N.end());
+            auto aux = it;
+            ++aux;
+            sorted.erase(it);
+            it = aux;
+          }
         }
+      }else{
+        ++it;
       }
     }
-  } while (changes);
-  //Prints only thos graphs that are different. Potentially
-  std::cout << "Number of graphs: " << graphs.size() << '\n';
-  int var = 0;
-  std::vector<std::pair<unsigned, unsigned>> variations;
-  for (size_t i = 0; i < graphs.size(); i++) {
-    unsigned n = graphs.at(i).nodes.size();
-    unsigned m = graphs.at(i).edges.size();
-    if (!belongs(variations, std::pair<unsigned, unsigned>(n, m))) {
-      var++;
-      std::cout << "Graph variation number :" << var << '\n';
-      graphs.at(i).print();
-      variations.push_back(std::pair<unsigned, unsigned>(n, m));
+    if (sameG==false) {
+      std::cout << "😊" << '\n';
+
+
+
+      getchar();
     }
+  } while (!sorted.empty());
+  std::cout << "Done!\n#G = " << '\n';
+  std::cout << G.size() << '\n';
+
+  for (size_t i = 0; i < G.size(); i++) {
+    G.at(i).print();
   }
-  std::cout << "End of program" << '\n';
 }
