@@ -5,7 +5,8 @@ This repository is mainly used for the projects and assingments of the Computer 
 Student: Meza Madrid Raúl Damián 
 
 Programs
-* Cellular Automata 
+* Cellular Automaton 
+* Cellular Automaton with composite function and memory
 * Langtons Ant
 * Patterns in Life & Difussion
 
